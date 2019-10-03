@@ -102,6 +102,9 @@ p.addParameter('calcobserverfocuscorrection', 0, @isscalar);
 % Retinal parameters
 p.addParameter('umperdegree', 300, @isscalar);
 
+% Custom lca
+p.addParameter('customlca', [], @(x)( (isempty(x)) || (isa(x, 'function_handle')) ));
+
 % SCE parameters
 p.addParameter('sceparams',sceCreate([],'none'), @isstruct);
 
@@ -147,6 +150,9 @@ wvf = wvfSet(wvf, 'calc observer focus correction', ...
 
 % Conversion between degrees of visual angle and mm
 wvf = wvfSet(wvf, 'um per degree',p.Results.umperdegree);
+
+% Custom LCA function handle
+wvf = wvfSet(wvf, 'custom lca',p.Results.customlca);
 
 % Stiles Crawford Effect parameters
 wvf = wvfSet(wvf, 'sce params', p.Results.sceparams);

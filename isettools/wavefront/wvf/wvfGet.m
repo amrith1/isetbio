@@ -272,6 +272,9 @@ switch (parm)
         % Conversion factor between um on retina & visual angle in degreees
         val = wvf.umPerDegree;
         
+    case {'customlca'}
+        val = wvf.customLCA;
+        
     otherwise
         isBookkeeping = false;
 end
