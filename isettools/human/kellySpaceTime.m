@@ -38,6 +38,7 @@ function [Sens, fs, ft] = kellySpaceTime(fs, ft)
 %{
     [Sens, fs, ft] = kellySpaceTime;
     surf(fs, ft, Sens);
+    xlabel('Spatial (cpd)'); ylabel('Temporal (Hz)');
     set(gca, 'zscale', 'log', 'yscale', 'log', 'xscale', 'log')
 %}
 

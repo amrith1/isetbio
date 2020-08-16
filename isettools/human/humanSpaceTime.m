@@ -69,7 +69,7 @@ function [sens, fs, ft] = humanSpaceTime(model, fs, ft)
 %{
     [spatialFilters, positions] = humanSpaceTime('poirsoncolor');
     mesh(positions, positions, spatialFilters.by);
-    xlabel('Position (deg)')
+    xlabel('Position (deg)'); ylabel('Position (deg)')
 %}
 
 if notDefined('model'), model = 'kelly79'; end
