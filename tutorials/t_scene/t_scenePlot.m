@@ -15,9 +15,9 @@
 %% Initialize ISETBio and the data
 ieInit;
 
+%%
 scene = sceneCreate;
-vcAddAndSelectObject(scene);
-sceneWindow;
+sceneWindow(scene);
 
 %% Show luminance as a mesh on linear or log scale
 scenePlot(scene, 'luminance mesh linear');
@@ -54,3 +54,5 @@ scenePlot(scene, 'chromaticity', roiRect);
 roiRect = [6 51 8 12];
 uData = scenePlot(scene, 'reflectance', roiRect);
 scenePlot(scene, 'chromaticity', roiRect);
+
+%% END

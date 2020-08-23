@@ -14,7 +14,7 @@
 %    09/05/18  jnm  Formatting
 
 %% Init
-s_initISET;
+ieInit;
 
 %% Create scene from file
 %  Initiate data file path

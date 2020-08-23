@@ -82,3 +82,5 @@ if (diffIlluminant < 1e-6)
 else
     fprintf('Sigh.  There is an illuminant set bug.\n');
 end
+
+%% END
