@@ -184,8 +184,8 @@ classdef coneMosaic < hiddenHandle
         %    construction
         useParfor;
         
-        %hdl  Handle of the CONEMOSAIC window
-        hdl
+        % app CONEMOSAIC window
+        app
     end
 
     properties (Dependent)

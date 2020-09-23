@@ -20,6 +20,12 @@ function window(obj, varargin)
 %   See Also:
 %    coneMosaicWindow
 
+% Examples:
+%{
+   cm = coneMosaic;
+   cm.window;
+%}
+
 % History:
 %    xx/xx/16  HJ   ISETBIO Team 2016
 %    02/19/18  jnm  Formatting
@@ -32,6 +38,6 @@ p.addRequired('obj',@(x)(isa(x,'coneMosaic')));
 p.addParameter('show','meanabsorptions',@(x)(ismember(ieParamFormat(x),valid)));
 
 p.parse(obj,varargin{:});
-coneMosaicWindow(obj,p.Results.show);
+coneMosaicWindow_App(obj,p.Results.show);
 
 end
