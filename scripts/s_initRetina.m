@@ -17,20 +17,20 @@
 
 %%
 ieInit;
-clx;
 
 %% All the way from scene to inner retina 
 scene = sceneCreate('rings rays');
 scene = sceneSet(scene,'fov',2);
-% ieAddObject(scene); sceneWindow;
+% sceneWindow(scene);
 
 oi = oiCreate;
 oi = oiCompute(oi,scene);
-% ieAddObject(oi); oiWindow;
+%  oiWindow(oi);
 
+%%
 cmosaic = coneMosaic;
 cmosaic.emGenSequence(50);
-cmosaic.compute(oi); clear a;
+cmosaic.compute(oi); 
 % cmosaic.window
 
 % rdt = RdtClient('isetbio');
