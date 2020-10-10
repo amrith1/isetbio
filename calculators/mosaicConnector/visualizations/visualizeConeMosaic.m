@@ -1,4 +1,8 @@
 function visualizeConeMosaic(conePositionsMicrons, coneTypes, roi, plotlabOBJ)
+% Render an image of the cone mosaic
+%
+
+%%
     LconeIndices = find(coneTypes == 2);
     MconeIndices = find(coneTypes == 3);
     SconeIndices = find(coneTypes == 4);

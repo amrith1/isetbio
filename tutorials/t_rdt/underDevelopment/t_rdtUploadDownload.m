@@ -64,7 +64,7 @@ end
 
 if rdtDownloadFlag
     
-    rdt = Rdtrdt('isetbio');
+    rdt = RdtClient('isetbio');
     rdt.crp('/resources/data/cmosaics');
     rdt.listArtifacts('print',true);
 

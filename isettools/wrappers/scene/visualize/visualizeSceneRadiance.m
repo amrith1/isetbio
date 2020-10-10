@@ -1,5 +1,17 @@
 function visualizeSceneRadiance(spatialSupport, spatialSupportUnits, ...
     photons, wavelengthSupport, wavelengthBandsToVisualize, varargin)
+% NP method of visualizing scene radiance
+%
+% Should be integrated with ISET techniques and simplified.  For example,
+% only the 'scene' should be passed in and the other arguments should be
+% obtained using sceneGet().  This must have been an early implementation.
+%
+%
+% See also
+%
+
+%{
+%}
 
 p = inputParser;
 p.addParameter('contrastProfilesOnly', false, @islogical);

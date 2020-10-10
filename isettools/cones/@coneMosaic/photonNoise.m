@@ -49,7 +49,7 @@ switch noiseFlag
     case 'frozen'
         rng(seed);
     case 'random'
-        rng('shuffle');
+        rng('default');
 end
 
 %% This is std * N(0, 1)
