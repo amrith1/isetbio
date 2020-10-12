@@ -1,6 +1,6 @@
 % Initialize isetbio session.
 %
-% Descritpion:
+% Description:
 %   This script initializes an isetbio session.  It
 %
 %     * Closes down current instance of ISETBIO
@@ -18,6 +18,12 @@
 % History:
 %                  BW, ISETBIO Team, Copyright 2015
 % 01/06/18  dhb    Suppress warning 'MATLAB:Figure:RecursionOnClose'.
+
+
+%%
+if contains(path,'isetcam') && contains(path,'isetbio')
+    error("Isetcam & Isetbio contain over-lapping functionality, so only one at a time should be in your path");
+end
 
 %% Check if there is a running instance, closes it, and clears workspace
 ieMainClose;   % Closes open ISETBIO windows
