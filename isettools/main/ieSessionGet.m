@@ -136,6 +136,14 @@ switch param
         else, vcSESSION.initHelp = 1; val = 1; 
         end
     % Matlab setpref/getpref 
+    case {'initclear'}
+        % Clear workspace variables with ieInit.  True or False.
+        iePref = getpref('ISET');
+        if ~checkfields(iePref,'initclear')
+            setpref('ISET','initclear',true);
+            val = true;
+        else, val = iePref.initclear;
+        end
     case {'deltafontsize', 'fontsize', 'fontincrement', ...
             'increasefontsize', 'fontdelta', 'deltafont'}
         % This value determines whether we change the font size in every
@@ -210,15 +218,19 @@ switch param
         if ~isempty(v), val = guihandles(v); end
     % Figure numbers of the various windows. I am not sure these are
     % properly updated, but I think so.
+    %{
     case {'mainfigure', 'mainfigures', 'mainwindow'}
         if checkfields(vcSESSION, 'GUI', 'vcMainWindow')
             val = vcSESSION.GUI.vcMainWindow.hObject;
         end
-    case {'scenefigure', 'sceneimagefigure', ...
-            'sceneimagefigures', 'scenewindow'}
-        if checkfields(vcSESSION, 'GUI', 'vcSceneWindow')
-            val = vcSESSION.GUI.vcSceneWindow.hObject;
+    %}
+    case {'scenewindow','scenefigure','sceneimagefigure','sceneimagefigures'}
+        if checkfields(vcSESSION,'GUI','vcSceneWindow','app')
+            val = vcSESSION.GUI.vcSceneWindow.app;
+            % val = app.figure1;
+            % val = vcSESSION.GUI.vcSceneWindow.hObject;
         end
+
     case {'oifigure', 'opticalimagefigure', 'oifigures', ...
             'opticalimagefigures', 'oiwindow'}
         if checkfields(vcSESSION, 'GUI', 'vcOptImgWindow')

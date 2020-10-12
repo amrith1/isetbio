@@ -87,6 +87,7 @@ if ~exist('val', 'var'), error('You must specify a value.'); end
 
 param = ieParamFormat(param);
 switch param
+    %{
     case {'version'}
         vcSESSION.VERSION = val;
     case {'name', 'sessionname'}
@@ -98,12 +99,24 @@ switch param
         if checkfields(vcSESSION, 'initHelp'), vcSESSION.initHelp = val;
         else, vcSESSION.initHelp = 1;
         end
+    %}
+    
     % Matlab setpref values
+    case {'initclear'}
+        % Clear workspace variables with ieInit.  True or False.
+        setpref('ISETBIO','initclear',logical(val));
+    case {'fontsize'}
+        % GUI window font size
+        setpref('ISETBIO','fontSize',val);
+        
     case {'detlafontsize', 'fontincrement', 'increasefontsize', ...
             'fontdelta', 'deltafont'}
+        % Planning to deprecate. Will update with ISETCam functions.
+        %
         % This value determines whether we change the font size in every
         % window by this increment, calling ieFontChangeSize when the
         % window is opened.
+        warning('Planning to deprecate font delta')
         setpref('ISET', 'fontDelta', val);
     case {'waitbar'}
         % 0 means off, 1 means on
@@ -122,6 +135,7 @@ switch param
     case {'imagesizethreshold'}
         vcSESSION.imagesizethreshold = val;
     % Set window information at startup
+    %{
     case {'mainwindow'}
         if length(varargin) < 2
             error('main window requires hObject, eventdata, handles');
@@ -129,13 +143,19 @@ switch param
         vcSESSION.GUI.vcMainWindow.hObject = val;
         vcSESSION.GUI.vcMainWindow.eventdata = varargin{1};
         vcSESSION.GUI.vcMainWindow.handles = varargin{2};
+    %}
     case {'scenewindow'}
+        % We store the whole app struct of the scene window.
+        vcSESSION.GUI.vcSceneWindow.app = val;
+        %{
         if length(varargin) < 2
             error('scene window requires hObject, eventdata, handles');
         end
         vcSESSION.GUI.vcSceneWindow.hObject = val;
         vcSESSION.GUI.vcSceneWindow.eventdata = varargin{1};
         vcSESSION.GUI.vcSceneWindow.handles = varargin{2};
+        %}
+        
     case {'oiwindow'}
         if length(varargin) < 2
             error(strcat('optical image window requires hObject, ', ...

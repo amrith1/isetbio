@@ -1,68 +1,109 @@
-function rgb = sceneShowImage(scene, displayFlag, gam)
-% Render an image of the scene data
+function rgb = sceneShowImage(scene,displayFlag,gam,sceneW)
+% Render an image of the scene data from its SPD values
 %
-% Syntax:
-%    rgb = sceneShowImage(scene, [displayFlag], [gam])
+% Synopsis
+%    rgb = sceneShowImage(scene,displayFlag,gam,sceneW)
 %
-% Description:
-%    The rendering can be either of photons or energy values. This is
-%    called from the sceneWindow, so that axes are in that window. If you
-%    call this from the command line, a new figure is displayed.
+% Brief description
+%  Computes from scene spectral data to an sRGB rendering. Which type of
+%  rendering depends on the displayFlag.
 %
-% Inputs:
-%    scene       - The scene structure
-%    displayFlag - (Optional) A boolean value indicating whether or not to
-%                  display the scene. Default is 1 (true).
-%    gam         - (Optional) The gamma value. Default is 1.
+% Inputs
+%  scene:
+%  displayFlag:
+%     absolute value of 0,1 compute RGB image 
+%     absolute value of 2,  compute gray scale for IR
+%     absolute value of 3,  HDR rendering method
 %
-%  Outputs:
-%    rgb         - The scene data image
+%     If value is zero or negative, do not display, just render the values
+%     into the rgb variable that is returned.
 %
-% Optional key/value pairs:
-%    None.
+%  gam:    The gamma value for the rendering
+%  sceneW: sceneWindow_App class object
 %
-% Notes:
-%    * TODO: Shouldn't we select the axes for rendering here?  There is
-%      only one axis in the scene and oi window. But if we ever go to more,
-%      this routine should  say which axis should be used for rendering.
-%    * N.B. The source contains executable examples of usage, which can be
-%      accessed by typing 'edit sceneShowImage.m' in the command window.
+% Outputs
+%   rgb:   Image for display
 %
-
-% History:
-%    xx/xx/03       Copyright ImagEval Consultants, LLC, 2003.
-%    12/21/17  jnm  Formatting & fix examples
-%    01/26/18  jnm  Formatting update to match Wiki.
+% Copyright ImagEval Consultants, LLC, 2003.
+%
+% See also
+%   imageSPD
 
 % Examples:
 %{
-    scene = sceneCreate;
-    rgb = sceneShowImage(scene);
-    sceneShowImage(scene);
-    sceneShowImage(scene, 0);
+   scene = sceneCreate; sceneWindow(scene);
+   rgb = sceneShowImage(scene,-1);    % Compute, but don't show
+   ieNewGraphWin; imagescRGB(rgb);    % Now show
+%}
+%{
+   thisW = sceneWindow2;
+   sceneShowImage(scene,1,1,thisW);      % Show
+%}
+%{
+   thisW = sceneWindow2;
+   im = sceneShowImage(scene,2,1,thisW); % Show gray scale version.
+%}
+%{
+   im = sceneShowImage(scene,2,1);       % Create gray scale version.
 %}
 
-if notDefined('scene'), cla; return;  end
-if notDefined('displayFlag'), displayFlag = 1; end
-if notDefined('gam'), gam = 1; end
+%%  Input parameters
+if isempty(scene), cla; return;  end
 
-% Force to lower case and no spaces
-wList = sceneGet(scene, 'wavelength');
-photons = sceneGet(scene, 'photons');
-row = sceneGet(scene, 'row'); 
-col = sceneGet(scene, 'col');
+if ~exist('gam','var')||isempty(gam),         gam = 1;         end
+if ~exist('displayFlag','var')||isempty(displayFlag), displayFlag = 1; end
+if ~exist('sceneW','var')||isempty(sceneW),      sceneW = [];     end
 
-if isempty(photons)
-    cla
-    sprintf('ISET Warning:  Data are not available');
+if ~isempty(sceneW)
+    figure(sceneW.figure1);   % Make sure it is selected
+    sceneAxis = sceneW.sceneImage;
+else
+    sceneAxis = []; 
+end
+
+%%  Get the data
+if checkfields(scene,'data','photons')
+    % Don't duplicate the data.
+    photons = sceneGet(scene,'photons'); 
+    wList   = sceneGet(scene,'wavelength');
+    sz      = sceneGet(scene,'size');
+else
+    cla(sceneAxis);
+    warning('Data are not available');
     return;
 end
+   
+%% Display the image in the GUI, or just compute the values
+
+% The absolute value of the displayFlag flag determines how imageSPD
+% converts the data into a displayed image.  It is determined from the GUI
+% from the app.
+
+% The displayFlag is always set to negative.  So imageSPD does not show the
+% image.  Rather, we show it upon return here.
+rgb = imageSPD(photons,wList,gam,sz(1),sz(2),-1*abs(displayFlag),[],[],sceneW);
+
+%% We could add back ROIs/overlays here, if desired.
+
+% If value is positive, display the rendered RGB. If negative, we just
+% return the RGB values.
+if displayFlag >= 0
+    if isempty(sceneAxis)
+        % Should be called imageAxis.  Not sure it is needed, really.
+        ieNewGraphWin;
+    end
     
-% This displays the image in the GUI. The displayFlag flag determines how
-% imageSPD converts the data into a displayed image. It is set from the
-% GUI in the function sceneShowImage.
-rgb = imageSPD(photons, wList, gam, row, col, displayFlag);
-axis image;
-axis off
+    if ~exist('xcoords', 'var') || ~exist('ycoords', 'var') || isempty(xcoords) || isempty(ycoords)
+        imagescRGB(rgb); axis image; axis off
+    else
+        % User specified a grid overlay
+        rgb = rgb/max(rgb(:));
+        rgb = ieClip(rgb,0,[]);
+        imagesc(xcoords,ycoords,rgb);
+        axis image; grid on;
+        set(gca,'xcolor',[.5 .5 .5]);
+        set(gca,'ycolor',[.5 .5 .5]);
+    end   
+end
 
 end
