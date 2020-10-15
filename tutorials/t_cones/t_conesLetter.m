@@ -30,11 +30,11 @@ scene = sceneSet(scene,'wangular',0.3);
 % Here is the scene
 sceneWindow(scene);
 
-%% Push the scene through human optics
+%% Compute from the scene through human optics
 
-oi = oiCreate;
+oi = oiCreate;             % Default human optics
 oi = oiCompute(oi,scene);
-% oiWindow(oi);
+oiWindow(oi);              % Have a look
 
 %%  Now image it on the cone mosaic with some fixational eye movements
 
