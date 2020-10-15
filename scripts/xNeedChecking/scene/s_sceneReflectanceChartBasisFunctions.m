@@ -7,7 +7,7 @@
 % Copyright Imageval Consulting LLC, 2012
 
 %% 
-s_initISET
+ieInit;
 
 %% Randomly select reflectances
 

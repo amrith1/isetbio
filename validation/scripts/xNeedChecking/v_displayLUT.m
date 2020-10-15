@@ -4,7 +4,7 @@
 %
 
 %%
-s_initISET
+ieInit;
 
 %%  Read an 8bit RGB file and return some photons.
 

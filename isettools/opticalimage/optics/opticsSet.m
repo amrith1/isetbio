@@ -231,7 +231,7 @@ switch parm
         end
 
     % ---- Relative illumination calculations
-    case {'offaxis', 'offaxismethod', 'relillummethod', 'cos4thflag'}
+    case {'relativeillumination','offaxis', 'offaxismethod', 'relillummethod', 'cos4thflag'}
         % Flag determining whether you use the cos4th method
         % Bad naming because of history.
         optics.offaxis = val;

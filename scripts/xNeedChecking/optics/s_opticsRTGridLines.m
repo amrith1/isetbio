@@ -26,7 +26,7 @@
 
 
 %%
-s_initISET
+ieInit;
 
 %% Set up a wide angle scene for the wide angle lens below
 scene = sceneCreate('gridlines',[384 384], 48);

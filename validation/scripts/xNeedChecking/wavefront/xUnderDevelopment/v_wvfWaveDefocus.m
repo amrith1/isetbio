@@ -21,7 +21,7 @@
 % (c) Wavefront Toolbox Team, 2012 (bw)
 
 %% Initialize and set parameters
-s_initISET
+ieInit;
 
 % Ranges for plotting
 maxMIN = 2;

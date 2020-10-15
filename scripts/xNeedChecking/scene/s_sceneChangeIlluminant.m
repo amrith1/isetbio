@@ -13,7 +13,7 @@
 % Copyright ImagEval Consultants, LLC, 2010.
 
 %%
-s_initISET
+ieInit;
 
 %% Create a scene
 %  

@@ -37,8 +37,8 @@ modulation = zeros(nTemporalSamples,1);
 modulation(10:11) = 1;
 
 %% Scene parameters in general
-sceneParams.fov       = 0.5;   % Half a degree
-sceneParams.luminance = 50;    % Uniform scene luminance (cd/m2)
+sceneParams.fov           = 0.5;   % Half a degree
+sceneParams.meanluminance = 50;    % Uniform scene luminance (cd/m2)
 
 % Creates the impulse.  Steady background of 50 cd/m2, then a flash at 100
 % cd/m2 for 5 ms, then back to 50.

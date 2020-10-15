@@ -14,7 +14,7 @@
 % Copyright ImagEval Consultants, LLC, 2008
 
 %%
-s_initISET
+ieInit;
 wbStatus = ieSessionGet('waitbar');
 ieSessionSet('waitbar','on');
 

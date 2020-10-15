@@ -782,6 +782,33 @@ switch parm
         if checkfields(oi, 'customCompute'), val = oi.customCompute;
         else, val = 0;
         end
+        
+        % Rendering - 
+    case {'renderflagindex'}
+        % Updated for appdesigner
+        %
+        % val = oiGet(oi,'display flag index')
+        % When there is an oiWindow open and set in the vcSESSION,
+        % find the display flag index
+        %
+        % See if there is a display window
+        oiW = ieSessionGet('oi window');
+        if isempty(oiW), val = 1;   % Default if no window
+        else, val = find(contains(oiW.popupRender.Items,oiW.popupRender.Value));
+        end
+        
+    case {'renderflagstring'}
+        % Updated for appdesigner
+        %
+        % val = oiGet(oi,'display flag string')
+        % When there is an oiWindow open and set in the vcSESSION,
+        % find the display flag index
+        
+        % See if there is a display window
+        oiW = ieSessionGet('oi window');
+        if isempty(oiW), val = 'Standard RGB';   % Default if no window
+        else, val = oiW.popupRender.Value;
+        end
     case {'rgb', 'rgbimage'}
         % Visual information
         %

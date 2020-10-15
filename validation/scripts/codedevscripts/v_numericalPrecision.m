@@ -11,7 +11,7 @@ function ValidationFunction(runTimeParams)
 
     
     %% Initialize ISETBIO
-    s_initISET;
+    ieInit;;
         
     %% Internal validations
     % The result of a computation: a vector of doubles

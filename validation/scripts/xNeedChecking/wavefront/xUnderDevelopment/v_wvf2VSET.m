@@ -5,7 +5,7 @@
 % (c) Wavefront Toolbox Team 2012 (bw)
 
 %%
-s_initISET
+ieInit;
 
 %%
 s_wvf2OI

@@ -1,6 +1,6 @@
 function testMagnification
 
-    s_initISET;
+    ieInit;
     
     % make a scene
     scene = sceneCreate('macbethd65');

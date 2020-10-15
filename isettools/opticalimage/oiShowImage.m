@@ -1,84 +1,73 @@
-function img = oiShowImage(oi, displayFlag, gam)
-% Render an image of the scene data
+function rgb = oiShowImage(oi,displayFlag,gam,oiW)
+% Render an image of the oi data
 %
-% Syntax:
-%   img = oiShowImage(oi, displayFlag, gam)
+%    rgb = oiShowImage(oi,displayFlag,gam,oiW)
 %
-% Description:
-%    Render & return the display image of the scene data.
+% oi:   Optical image
+% displayFlag: (see imageSPD; if value is 0 or negative, don't display)
+%     = 0, +/- 1 compute RGB image 
+%     = +/- 2,   compute gray scale for IR
+%     = +/- 3,   use HDR method (hdrRender.m)
+%     = +/- 4,   clip highlights (Set top 0.05 percent of pixels to max) 
+% gam: Set display gamma parameter
 %
-%    There are examples contained in the code below. To access, type 'edit
-%    oiShowImage.m' into the Command Window.
-%
-% Inputs:
-%    oi          - (Optional) Struct. An optical image structure. If not
-%                  provided, function will clear everything and return.
-%    displayFlag - (Optional) Numeric. The value will indicate whether or
-%                  not to display the scene, and if to display, how. The
-%                  values are read using the absolute values. Default is 1.
-%                  The values are as follows:
-%          0: If the value <= 0, No display.
-%          1: Default. Visible RGB display
-%          2: Gray scale image, used for SWIR, NIR
-%    gam         - (Optional). Scalar Numeroic. Exponent for gamma
-%                  correction. Default is 1.
-%
-% Outputs:
-%    img         - The created scene image
-%
-% Optional key/value pairs:
-%    None.
-%
-% Notes:
-%    * TODO: Shouldn't we select the axes for rendering here? There is only
-%      one axis in the scene and oi window. But if we ever go to more, this
-%      routine should say which axis should be used for rendering.
-%
-
-% History:
-%    xx/xx/03       Copyright ImagEval Consultants, LLC, 2003.
-%    03/06/18  jnm  Formatting
-%    06/24/19  JNM  Minor formatting adjustments
-
 % Examples:
-%{
-    oi = oiCreate;
-    scene = sceneCreate;
-    oi = oiSet(oi, 'photons', oiCalculateIrradiance(scene, oi))
-    vcNewGraphWin;
-    displayFlag = [1 2 1];
-    oiShowImage(oi, displayFlag(1)); % RGB
-    vcNewGraphWin;
-    oiShowImage(oi, displayFlag(2)); % Gray scale
-    vcNewGraphWin;
-    oiShowImage(oi, displayFlag(3), 0.5); % RGB, gamma
-%}
+%   oiShowImage(oi);       
+%   img = oiShowImage(oi,0);   vcNewGraphWin; image(img)
+%   img = oiShowImage(oi,2);
+%   img = oiShowImage(oi,-2);  img = img/max(img(:)); vcNewGraphWin; imagesc(img);
+%
+% Copyright ImagEval Consultants, LLC, 2003.
 
-if isempty(oi), cla; return;  end
-if notDefined('gam'), gam = 1; end
-if notDefined('displayFlag'), displayFlag = 1; end
+%%
+if ~exist('oi','var') || isempty(oi) || ~checkfields(oi,'data'), cla; return;  end
+if ~exist('gam','var') || isempty(gam), gam = 1; end
+if ~exist('displayFlag','var'), displayFlag = 1; end
+if ~exist('oiW','var'), oiW = []; end
 
-% Force to lower case and no spaces
-wList = oiGet(oi, 'wavelength');
-photons = [];
-
-% if we don't use an oiGet here we save memory.
-if checkfields(oi, 'data', 'photons'), photons = oi.data.photons; end
-sz = oiGet(oi, 'size');
-
-if isempty(photons)
-    handles = ieSessionGet('opticalimagehandle');
-    % axes(get(handles);
-    cla
-    ieInWindowMessage(...
-        'No spectral irradiance data available', handles, []);
-    return;
+if ~isempty(oiW)
+    % Make sure it is selected
+    figure(oiW.figure1);   
 end
 
-% The displayFlag flag determines how imageSPD converts the data into a
-% displayed image.
-img = imageSPD(photons, wList, gam, sz(1), sz(2), displayFlag);
-axis image;
-axis off
+%% Don't duplicate the data
+if checkfields(oi,'data','photons')
+    photons = oi.data.photons;
+    wList   = oiGet(oi,'wavelength');
+    sz      = oiGet(oi,'size');
+else 
+    % Object exists, but no data.
+    % cla(oiAxis);
+    return;
+end
+    
+% This displays the image in the GUI.  The displayFlag flag determines how
+% imageSPD converts the data into a displayed image. The data in img are
+% in RGB format.
+%
+% We should probably select the oi window here.
+rgb = imageSPD(photons,wList,gam,sz(1),sz(2),-1*abs(displayFlag),[],[],oiW);
+
+%% If displayFlag value is positive, display the rendered RGB. 
+
+% If negative, we just return the RGB values.
+if displayFlag >= 0
+    if isempty(oiW)
+        % Should be called imageAxis.  Not sure it is needed, really.
+        ieNewGraphWin
+    end
+    if ~exist('xcoords','var') || ~exist('ycoords','var') ...
+            || isempty(xcoords) || isempty(ycoords)
+        imagescRGB(rgb); axis off
+    else
+        % User specified a grid overlay
+        rgb = rgb/max(rgb(:));
+        rgb = ieClip(rgb,0,[]);
+        imagesc(xcoords,ycoords,rgb);
+        axis image; grid on;
+        set(gca,'xcolor',[.5 .5 .5]);
+        set(gca,'ycolor',[.5 .5 .5]);
+    end   
+end
 
 end

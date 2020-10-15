@@ -13,7 +13,7 @@ end
 function ValidationFunction(runTimeParams)
     
     %% Initialize ISETBIO
-    s_initISET;
+    ieInit;
     
     %% Set run parameters
     

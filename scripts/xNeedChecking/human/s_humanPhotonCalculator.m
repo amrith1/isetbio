@@ -28,7 +28,7 @@
 %     10^19 photons m^-2 s^-1 at the retina.
 %
 %%
-s_initISET
+ieInit;
  
 meanluminance   = 190000;  % Cd/m2
 monochormeWave  = 580;     % 

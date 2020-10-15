@@ -5,7 +5,7 @@
 % (c) Imageval Consulting, LLC, 2012
 
 %%
-s_initISET
+ieInit;
 
 %%
 scene = sceneCreate;

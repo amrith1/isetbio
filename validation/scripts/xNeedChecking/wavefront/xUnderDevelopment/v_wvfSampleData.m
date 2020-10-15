@@ -32,7 +32,7 @@
 % (c) Wavefront Toolbox Team, 2012 (bw)
 
 %% Initialize
-s_initISET
+ieInit;
 maxMIN = 6;
 
 %% Use Heidi Hofer's sample data here

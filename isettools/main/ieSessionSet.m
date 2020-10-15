@@ -157,6 +157,8 @@ switch param
         %}
         
     case {'oiwindow'}
+        vcSESSION.GUI.vcOptImgWindow.app = val;
+        %{
         if length(varargin) < 2
             error(strcat('optical image window requires hObject, ', ...
                 'eventdata, handles'));
@@ -164,6 +166,7 @@ switch param
         vcSESSION.GUI.vcOptImgWindow.hObject = val;
         vcSESSION.GUI.vcOptImgWindow.eventdata = varargin{1};
         vcSESSION.GUI.vcOptImgWindow.handles = varargin{2};
+        %}
     case {'sensorwindow'}
         if length(varargin) < 2
             error('sensor window requires hObject, eventdata, handles');

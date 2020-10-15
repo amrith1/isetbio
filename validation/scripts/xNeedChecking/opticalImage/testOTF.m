@@ -1,5 +1,5 @@
 function testOTF
-    s_initISET;
+    ieInit;
 
     h1 = figure(1);
     set(h1, 'Position', [100 100 650 760]);

@@ -233,8 +233,8 @@ switch param
 
     case {'oifigure', 'opticalimagefigure', 'oifigures', ...
             'opticalimagefigures', 'oiwindow'}
-        if checkfields(vcSESSION, 'GUI', 'vcOptImgWindow')
-            val = vcSESSION.GUI.vcOptImgWindow.hObject;
+        if checkfields(vcSESSION, 'GUI', 'vcOptImgWindow','app')
+            val = vcSESSION.GUI.vcOptImgWindow.app;
         end
     case {'sensorfigure', 'isafigure', 'sensorfigures', 'isafigures', ...
             'sensorwindow', 'isawindow'}

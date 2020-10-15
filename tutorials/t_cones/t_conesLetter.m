@@ -34,6 +34,7 @@ sceneWindow(scene);
 
 oi = oiCreate;
 oi = oiCompute(oi,scene);
+% oiWindow(oi);
 
 %%  Now image it on the cone mosaic with some fixational eye movements
 

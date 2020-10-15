@@ -14,7 +14,7 @@
 % (c) Stanford VISTA Team, 2012 (bw)
 
 %% 
-s_initISET
+ieInit;
 
 %% Set values in millimeters
 wvfParams0 = wvfCreate('measured pupil',6,'calculated pupil',3);

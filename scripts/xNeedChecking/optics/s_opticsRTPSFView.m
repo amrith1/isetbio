@@ -6,7 +6,7 @@
 % (c) Imageval Consulting, LLC, 2012
 
 %%
-s_initISET
+ieInit;
 wbStatus = ieSessionGet('waitbar');
 ieSessionSet('waitbar','on');
 

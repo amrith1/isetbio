@@ -6,7 +6,7 @@
 % BW Copyright VISTASOFT Team, 2014
 
 %% 
-s_initISET
+ieInit;
 
 %% Create a scene
 scene = sceneCreate;

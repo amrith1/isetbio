@@ -16,7 +16,7 @@ function ValidationFunction(runTimeParams)
     %% Initialize ISET
     %
     % This clears the workspace and hides the main ISET window
-    s_initISET
+    ieInit;
 
     %% Simple message
     UnitTest.validationRecord('SIMPLE_MESSAGE','Testing scene creation.  Some scenes are not displayed.');
@@ -25,13 +25,13 @@ function ValidationFunction(runTimeParams)
     radF = 24; imSize = 512;
     scene = sceneCreate('mackay',radF,imSize);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('makay', scene);
 
     scene = sceneCreate('rings rays');
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('ringsandrays', scene);
 
@@ -42,7 +42,7 @@ function ValidationFunction(runTimeParams)
     parms.contrast  = .8;
     scene = sceneCreate('frequency orientation',parms);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('freqorient', scene);
 
@@ -51,7 +51,7 @@ function ValidationFunction(runTimeParams)
     parms.ang= 0; parms.row = 64; parms.col = 64; parms.GaborFlag=0;
     [scene,parms] = sceneCreate('harmonic',parms);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('harmonic', scene);
 
@@ -59,7 +59,7 @@ function ValidationFunction(runTimeParams)
     period = 16; spacing = 8; spectralType = 'ep';
     scene = sceneCreate('checkerboard',period,spacing,spectralType);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('checkerboard', scene);
 
@@ -67,7 +67,7 @@ function ValidationFunction(runTimeParams)
     imageSize = 128; 
     scene = sceneCreate('lined65',imageSize);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('singleline', scene);
 
@@ -76,7 +76,7 @@ function ValidationFunction(runTimeParams)
     edgeSlope = 1.3;
     scene = sceneCreate('slantedBar',imageSize,edgeSlope);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('slantedbar', scene);
 
@@ -92,19 +92,17 @@ function ValidationFunction(runTimeParams)
     pixelsBetweenPoints = 32;
     scene = sceneCreate('point array',imageSize,pixelsBetweenPoints);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('pointarray', scene);
 
     %% Macbeth
     patchSizePixels = 16;
-    spectrum.wave = 380:5:720;
-    scene = sceneCreate('macbeth tungsten',patchSizePixels,spectrum);
-    scene.data;
-    scene = sceneCreate('macbeth tungsten',patchSizePixels,spectrum,'bitdepth',32);
+    wave = 380:5:720;
+    scene = sceneCreate('macbeth tungsten',patchSizePixels,wave);
     scene.data;
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('macbeth', scene);
 
@@ -113,7 +111,7 @@ function ValidationFunction(runTimeParams)
     wavelength = 380:10:720;
     scene = sceneCreate('uniformEESpecify',sz,wavelength);
     if (runTimeParams.generatePlots)
-        vcAddAndSelectObject(scene); sceneWindow;
+       sceneWindow(scene);
     end
     UnitTest.validationData('uniformfield', scene);
 
