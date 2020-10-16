@@ -49,10 +49,12 @@ fprintf('Luminance of illuminant is %0.1f cd/m2\n', ...
 scene = sceneCreate('empty');
 
 %% Compute the radiance under the specified illuminant
-for i = 1:nRows
-    for j = 1:nCols
-        radianceEnergy(i, j, :) = theIlluminant .* ...
-            squeeze(macbethReflectance(i, j, :));
+
+radianceEnergy = zeros(nRows,nCols,numel(wave));
+for rr = 1:nRows
+    for cc = 1:nCols
+        radianceEnergy(rr, cc, :) = theIlluminant .* ...
+            squeeze(macbethReflectance(rr, cc, :));
     end
 end
 radiancePhotons = Energy2Quanta(wave, radianceEnergy);
@@ -62,16 +64,18 @@ radiancePhotons = Energy2Quanta(wave, radianceEnergy);
 % we check a little further down.
 scene = sceneSet(scene, 'photons', radiancePhotons);
 scene = sceneSet(scene, 'illuminant energy', theIlluminant);
-
 %% Look at the image contained in our beautiful scene
 % This will replace the first figure we had and should look the same.
-sceneShowImage(scene);
+% sceneWindow;
+rgb = sceneShowImage(scene,0);
+image(rgb);
 
 %% Check that isetbio agrees about the reflectance
 sceneReflectance = sceneGet(scene, 'reflectance');
-sceneIlluminant = sceneGet(scene, 'illuminant energy');
-diffReflectance = max(abs(sceneReflectance(:) - macbethReflectance(:)));
-diffIlluminant = max(abs(sceneIlluminant(:) - theIlluminant(:)));
+sceneIlluminant  = sceneGet(scene, 'illuminant energy');
+diffReflectance  = max(abs(sceneReflectance(:) - macbethReflectance(:)));
+diffIlluminant   = max(abs(sceneIlluminant(:) - theIlluminant(:)));
+
 if (diffReflectance < 1e-6)
     fprintf('Reflectance matches what we set!\n');
 else

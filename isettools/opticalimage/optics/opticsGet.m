@@ -855,8 +855,8 @@ switch parm
         val = 1 / (2 * peakF);
 
     case {'psfsupport'}
-        % opticsGet(optics, 'psf support', unit)
-        % Calculate the spatial support for the psf.
+        % opticsGet(optics, 'psf support', units)
+        % Calculate the spatial support for the psf in specific units.
         %
         % Returns mesh grid of X & Y values in a 2-dimensional cell array.
         % Used for mesh plotting often. X/Y could be reversed in 1 and 2.

@@ -34,20 +34,17 @@ if ~exist(dispCRTFile, 'file'), error('CRTDisplay file not found.'); end
 % The illuminant is set to be the white point of the monitor
 sceneA = sceneFromFile(imgFileName, 'rgb', [], dispOLEDFile);
 sceneA = sceneSet(sceneA, 'name', 'Scene on OLED');
-vcAddAndSelectObject(sceneA);
-sceneWindow;
+sceneWindow(sceneA);
 
 %% Scene on LCD
 sceneB = sceneFromFile(imgFileName, 'rgb', [], dispLCDFile);
 sceneB = sceneSet(sceneB, 'name', 'Scene on LCD');
-vcAddAndSelectObject('scene', sceneB);
-sceneWindow;
+sceneWindow(sceneB);
 
 %% Scene on CRT
 sceneC = sceneFromFile(imgFileName, 'rgb', [], dispCRTFile);
 sceneC = sceneSet(sceneC, 'name', 'Scene on CRT');
-vcAddAndSelectObject('scene', sceneC);
-sceneWindow;
+sceneWindow(sceneC);
 
 %% Compare the three images
 imageMultiview('scene', 1:3, true);

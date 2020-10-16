@@ -843,7 +843,7 @@ switch lower(pType)
                 
                 % Calculate the OTF using diffraction limited MTF (dlMTF)
                 otf = dlMTF(oi,fSupport,thisWave,units);
-                sSupport = opticsGet(optics,'psf support',fSupport,nSamp);   
+                sSupport = opticsGet(optics,'psf support',units);   
                 
                 % Derive the psf from the OTF
                 psf = fftshift(ifft2(otf));

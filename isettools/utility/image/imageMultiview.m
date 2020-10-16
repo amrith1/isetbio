@@ -85,14 +85,19 @@ subCount = 1;  % Which subplot are we in
 
 %% This is the display loop
 for ii = selectedObjs
-    if (~singlewindow || subCount == 1), f = vcNewGraphWin([], fType); end
+    if (~singlewindow || subCount == 1)
+        % If not a single window, always call.  Or if the first time
+        % through, call
+        thisFig = ieNewGraphWin([], fType); 
+    end
     if singlewindow
+        % If we are in a single window, pick the subplot.
         subplot(rWin, cWin, subCount);
         subCount = subCount + 1;
     end
     switch objType
         case 'SCENE'
-            sceneShowImage(objList{ii}, true, gam);
+            sceneShowImage(objList{ii}, true, gam, thisFig);
             t = sprintf('Scene %d - %s', ii, ...
                 sceneGet(objList{ii}, 'name'));
 
