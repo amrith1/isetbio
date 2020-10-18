@@ -188,6 +188,14 @@ switch oType
         elseif length(varargin) == 3, val = opticsGet(optics,parm,varargin{1},varargin{2},varargin{3});
         elseif length(varargin) == 4, val = opticsGet(optics,parm,varargin{1},varargin{2},varargin{3},varargin{4});
         end
+        return;
+        
+    case 'lens'
+        lens = oi.optics.lens;
+        if isempty(parm), val = lens;
+        else, val = lens.get(parm, varargin{:});
+        end
+        return;
         
     case 'wvf'
         % If a wavefront structure, then we either return the wvf or
@@ -200,7 +208,8 @@ switch oType
         elseif length(varargin) == 3, val = wvfGet(wvf,parm,varargin{1},varargin{2},varargin{3});
         elseif length(varargin) == 4, val = wvfGet(wvf,parm,varargin{1},varargin{2},varargin{3},varargin{4});
         end
-        
+        return;
+
     otherwise
         % Must be an oi object.  Format the parameter and move on.
         parm = ieParamFormat(parm);
@@ -372,39 +381,6 @@ switch oType
                 % this in programs, with oiComputePSF and
                 % wvfSet/wvfGet.
                 val = oi.wvf;
-                
-                % Sometimes we precompute the psf from the optics and store
-                % it here. The angle spacing of the precomputation is
-                % specified here. I think this should go away (BW).
-            case {'psfstruct','shiftvariantstructure'}
-                % Entire svPSF structure
-                if checkfields(oi,'psf'), val = oi.psf; end
-            case {'svpsf','sampledrtpsf','shiftvariantpsf'}
-                % Precomputed shift-variant psfs
-                if checkfields(oi,'psf','psf'), val = oi.psf.psf; end
-            case {'rtpsfsize'}
-                % Size of each PSF
-                if checkfields(oi,'psf','psf'), val = size(oi.psf.psf{1,1,1}); end
-            case {'psfsampleangles'}
-                % Vector of sample angle
-                if checkfields(oi,'psf','sampAngles'), val = oi.psf.sampAngles; end
-            case {'psfanglestep'}
-                % Spacing between angles
-                if checkfields(oi,'psf','sampAngles')
-                    val = oi.psf.sampAngles(2) - oi.psf.sampAngles(1);
-                end
-            case {'psfimageheights'}
-                % Vector of sampled image heights
-                if checkfields(oi,'psf','imgHeight'), val = oi.psf.imgHeight; end
-                if ~isempty(varargin), val = val*ieUnitScaleFactor(varargin{1}); end
-            case {'psfopticsname','raytraceopticsname'}
-                % Optics data are derived from
-                if checkfields(oi,'psf','opticsName'), val = oi.psf.opticsName; end
-            case 'psfwavelength'
-                % Wavelengths for this calculation. Should match the optics, I
-                % think.  Not sure why it is duplicated.
-                if checkfields(oi,'psf','wavelength'), val = oi.psf.wavelength; end
-            
                 
                 % optical diffuser properties
             case {'diffusermethod'}
@@ -931,4 +907,38 @@ switch oType
 end
 
 end
+
+%{
+                % Sometimes we precompute the psf from the optics and store
+                % it here. The angle spacing of the precomputation is
+                % specified here. I think this should go away (BW).
+            case {'psfstruct','shiftvariantstructure'}
+                % Entire svPSF structure
+                if checkfields(oi,'psf'), val = oi.psf; end
+            case {'svpsf','sampledrtpsf','shiftvariantpsf'}
+                % Precomputed shift-variant psfs
+                if checkfields(oi,'psf','psf'), val = oi.psf.psf; end
+            case {'rtpsfsize'}
+                % Size of each PSF
+                if checkfields(oi,'psf','psf'), val = size(oi.psf.psf{1,1,1}); end
+            case {'psfsampleangles'}
+                % Vector of sample angle
+                if checkfields(oi,'psf','sampAngles'), val = oi.psf.sampAngles; end
+            case {'psfanglestep'}
+                % Spacing between angles
+                if checkfields(oi,'psf','sampAngles')
+                    val = oi.psf.sampAngles(2) - oi.psf.sampAngles(1);
+                end
+            case {'psfimageheights'}
+                % Vector of sampled image heights
+                if checkfields(oi,'psf','imgHeight'), val = oi.psf.imgHeight; end
+                if ~isempty(varargin), val = val*ieUnitScaleFactor(varargin{1}); end
+            case {'psfopticsname','raytraceopticsname'}
+                % Optics data are derived from
+                if checkfields(oi,'psf','opticsName'), val = oi.psf.opticsName; end
+            case 'psfwavelength'
+                % Wavelengths for this calculation. Should match the optics, I
+                % think.  Not sure why it is duplicated.
+                if checkfields(oi,'psf','wavelength'), val = oi.psf.wavelength; end
+%}
 
