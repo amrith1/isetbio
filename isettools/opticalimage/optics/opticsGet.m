@@ -822,6 +822,53 @@ switch parm
         end
 
     case {'psfspacing'}
+        % opticsGet(optics,'psf spacing',[fx])
+        %
+        % Sample spacing of the psf points.  These are handled differently
+        % for diffraction and shift invariant cases.
+        %
+        % The units are always 1/units of the fx terms.  So, if these are
+        % cyc/um then the spacing is um.
+        %
+        % By default, the OTF.fx units are cyc/mm, so we get mm if no fx is
+        % specified for the shift invariant case.  The fx has to be
+        % specified for the diffraction limited case because they are not
+        % stored anywhere.
+        
+        oModel = opticsGet(optics,'model');
+        switch oModel
+            case 'diffractionlimited'
+                % No fx value is stored in this case.
+                % User must supply the peak
+                if isempty(varargin)
+                    warning('Diffraction limited psf support requires peak f');
+                else
+                    fx = varargin{1};
+                end
+            case 'shiftinvariant'
+                % Use the stored fx values
+                % Warning:  We are assuming that fx and fy have the same peak
+                % spatial frequency and spatial sampling. 
+                % The fx values are stored in cyc/mm by default.  Unusual
+                % and should be fixed.  If the fx is sent in with different
+                % units, then the spacing is in those units.
+                if length(varargin) >= 1, fx = varargin{1};
+                else,  fx = opticsGet(optics,'otf fx');
+                end
+            otherwise
+                
+        end
+        
+        % Trap this error possibility.
+        if isempty(fx), error('No otffx calculated yet. Fix me.'); end
+        
+        % Peak frequency in cycles/meter.  1/peakF is meters.  We have two
+        % samples in that distance, so the sample spacing is half that
+        % distance.
+        peakF = max(fx(:));
+        val = 1/(2*peakF);
+        
+        %{
         % opticsGet(optics, 'psf spacing', unit)
         % Sample spacing of the psf points
         %
@@ -853,8 +900,34 @@ switch parm
         % that distance, so the sample spacing is half that distance.
         peakF = max(fx(:));
         val = 1 / (2 * peakF);
-
+        %}
+        
     case {'psfsupport'}
+        % opticsGet(optics,'psf support',fSupport, nSamps)
+        %
+        % Returns mesh grid of X and Y values.  But maybe we should check
+        % the behavior and return the vector and matrix forms on request.
+        %
+        
+        if length(varargin) < 2, error('fSupport and nSamps required.'); end
+        fSupport = varargin{1};
+        nSamp    = varargin{2};
+        
+        % Frequency units are cycles/micron. The spatial frequency support
+        % runs from -Nyquist:Nyquist. With this support, the Nyquist
+        % frequency is actually the highest (peak) frequency value. There
+        % are two samples per Nyquist, so the sample spacing is 1/(2*peakF)
+        samp = (-nSamp:(nSamp-1));
+        [X,Y] = meshgrid(samp,samp);
+        
+        % Same as opticsGet(optics,'psf spacing',peakF);
+        %         peakF = max(fSupport(:));
+        %         deltaSpace = 1/(2*peakF);
+        deltaSpace = opticsGet(optics,'psf spacing',fSupport);
+        val(:,:,1) = X*deltaSpace;
+        val(:,:,2) = Y*deltaSpace;
+        
+        %{
         % opticsGet(optics, 'psf support', units)
         % Calculate the spatial support for the psf in specific units.
         %
@@ -924,7 +997,8 @@ switch parm
         [X, Y] = meshgrid(x, x);
         val{1} = X;
         val{2} = Y;
-
+        %}
+        
     %----------- Relative illumination (off-axis) specifications
     case {'offaxis', 'offaxismethod', 'relativeilluminationtype'}
         % This is the method used to compute relative illumination. It can
