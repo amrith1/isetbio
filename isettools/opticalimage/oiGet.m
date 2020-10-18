@@ -451,6 +451,17 @@ switch oType
                 % store photons.  Otherwise, there could be an inconsistency.
                 if checkfields(oi,'data','energy'), val = oi.data.energy; 
                 else, val = []; end
+            case 'roienergy'
+                if isempty(varargin), error('ROI required')
+                else, roiLocs = varargin{1};
+                end
+                val = vcGetROIData(oi, roiLocs, 'energy');
+            case 'roimeanenergy'
+                if isempty(varargin), error('ROI required')
+                else, roiLocs = varargin{1};
+                end
+                val = oiGet(oi, 'roienergy', roiLocs);
+                val = mean(val, 1);
                 
             case {'meanilluminance','meanillum'}
                 % Derived from the illuminance
@@ -898,7 +909,9 @@ switch oType
                 % This can be single with the new data format.
                 val = double(val);
             case {'illuminantcomment'}
-                if checkfields(oi,'illuminant','comment'),val = scene.illuminant.comment; end
+                if checkfields(oi,'illuminant','comment')
+                    val = oi.illuminant.comment; 
+                end
                 
             otherwise
                 disp(['Unknown parameter: ',parm]);
@@ -909,6 +922,8 @@ end
 end
 
 %{
+% Ray trace calculations are not part of ISETBio
+%
                 % Sometimes we precompute the psf from the optics and store
                 % it here. The angle spacing of the precomputation is
                 % specified here. I think this should go away (BW).
