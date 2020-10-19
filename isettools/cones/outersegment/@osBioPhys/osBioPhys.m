@@ -50,11 +50,9 @@ classdef osBioPhys < outerSegment
 %              dhb        Deprecate 'osType' and change 'eccentricityDegs'
 %                         to 'eccentricity'.
 %    02/14/18  jnm        Formatting
+%    10/19/2020 npc       Made fovealPeripheralCutoffDegs a constant property
 
-    properties(Access = private)
-        %STATE  Biophysics parameter state
-        state; 
-
+    properties (Constant)
         %FOVEALPERIPHERALCUTOFFDEGS  Eccentricity in degrees beyond which
         %   we switch from foveal to peripheral parameters.
         %
@@ -62,6 +60,11 @@ classdef osBioPhys < outerSegment
         %   intermediate eccentricity dynamics (3-5 degrees) so this will
         %   change.
         fovealPeripheralCutoffDegs = 10;
+    end
+    
+    properties(Access = private)
+        %STATE  Biophysics parameter state
+        state; 
     end
 
     properties(SetAccess = protected, GetAccess = public)
