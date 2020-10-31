@@ -835,6 +835,13 @@ switch lower(pType)
                 % Get the basic frequency support
                 val = opticsGet(optics,'dlFSupport',thisWave,units,nSamp);
                 [fSupport(:,:,1),fSupport(:,:,2)] = meshgrid(val{1},val{2});
+
+                % We should be able to figure out how to rely on this (BW)
+                % We really need to follow DHB's thinking about this and
+                % make the math right everywhere.
+                %
+                % tmp = oiFrequencySupport(oi,'um')
+                % [fSupport(:,:,1),fSupport(:,:,2)] = meshgrid(tmp.fy,tmp.fx);
                 
                 % Increase the spatial frequency range (highest
                 % spatial frequency) by a factor of 4, which yields a

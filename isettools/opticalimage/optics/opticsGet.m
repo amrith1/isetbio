@@ -856,7 +856,7 @@ switch parm
                 else,  fx = opticsGet(optics,'otf fx');
                 end
             otherwise
-                
+                error('Unknown optics model %s\n',oModel);
         end
         
         % Trap this error possibility.
@@ -905,6 +905,9 @@ switch parm
     case {'psfsupport'}
         % opticsGet(optics,'psf support',fSupport, nSamps)
         %
+        % Apparently
+        %   fSupport is size (n,n,2)
+        %   nSamp is is any integer
         % Returns mesh grid of X and Y values.  But maybe we should check
         % the behavior and return the vector and matrix forms on request.
         %

@@ -20,8 +20,6 @@ function scene = sceneSet(scene,parm,val,varargin)
 %  Examples:
 %    scene = sceneSet(scene,'name','myScene');      % Set the scene name
 %    scene = sceneSet(scene,'fov',3);               % Set scene field of view to 3 deg
-%    oi = sceneSet(oi,'optics',optics);
-%    oi = sceneSet(oi,'oicomputemethod','myOIcompute');
 %
 % Scene description
 %      'name'          - An informative name describing the scene
@@ -430,4 +428,4 @@ switch parm
         disp(['Unknown sceneSet parameter: ',parm]);
 end
 
-return;
+end

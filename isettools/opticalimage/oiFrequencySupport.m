@@ -47,6 +47,7 @@ function fSupport = oiFrequencySupport(oi, units)
 %}
 
 if notDefined('units'), units = 'cyclesPerDegree'; end
+units = ieParamFormat(units);
 
 %% To begin, calculate the frequencies in cycles per degree of visual angle
 % oi frequency information
@@ -77,7 +78,7 @@ maxFrequencyCPD = [(nCols / 2) / fovWidth, (nRows / 2) / fovHeight];
 
 % Now, if the request is in units other than cyc/deg, we convert
 switch lower(units)
-    case {'cyclesperdegree', 'cycperdeg'}
+    case {'cyclesperdegree', 'cycperdeg','deg'}
         maxFrequency = maxFrequencyCPD;
     case {'meters', 'm', 'millimeters', 'mm', 'microns', 'um'}
         degPerDist = oiGet(oi, 'degPerDist', units);
