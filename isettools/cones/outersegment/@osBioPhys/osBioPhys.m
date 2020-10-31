@@ -43,14 +43,14 @@ classdef osBioPhys < outerSegment
 % History:
 %    xx/xx/16  JRG/HJ/BW  ISETBIO Team, 2016
 %
-%    08/05/17  dhb        Add eccentricityDegs key/value pair, and comments
-%                         about it. This had been suggested previously in
-%                         the comments as required. I did it in a backwards
-%                         compatiable fashion.
-%              dhb        Deprecate 'osType' and change 'eccentricityDegs'
-%                         to 'eccentricity'.
-%    02/14/18  jnm        Formatting
-%    10/19/2020 npc       Made fovealPeripheralCutoffDegs a constant property
+%    08/05/17   dhb         Add eccentricityDegs key/value pair, and comments
+%                           about it. This had been suggested previously in
+%                           the comments as required. I did it in a backwards
+%                           compatiable fashion.
+%               dhb         Deprecate 'osType' and change 'eccentricityDegs'
+%                           to 'eccentricity'.
+%    02/14/18   jnm         Formatting
+%    10/19/2020 npc         Made fovealPeripheralCutoffDegs a constant
 
     properties (Constant)
         %FOVEALPERIPHERALCUTOFFDEGS  Eccentricity in degrees beyond which
