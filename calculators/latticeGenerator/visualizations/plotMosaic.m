@@ -1,4 +1,6 @@
 function plotMosaic(theAxesHandle, rfPositions, visualizedFOVMicrons, mosaicTitle)
+%
+%
     if (~isempty(rfPositions))
         plot(theAxesHandle, rfPositions(:,1), rfPositions(:,2), 'k.'); 
         axis(theAxesHandle, 'equal');
