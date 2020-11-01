@@ -3,7 +3,8 @@ function fitModel(obj, varargin)
     p.addParameter('dataset', 'medians', @(x)(ismember(x, {'medians', 'raw', 'paperFormulas'})));
     p.parse(varargin{:});
     dataSet = p.Results.dataset;
-    
+
+    rng('default');
     rng(1);
     
     switch (dataSet)

@@ -21,7 +21,7 @@
 
 
 %%
-if contains(path,'isetcam') && contains(path,'isetbio')
+if contains(path,'imgproc') && contains(path,'bipolar')
     error("Isetcam & Isetbio contain over-lapping functionality, so only one at a time should be in your path");
 end
 
