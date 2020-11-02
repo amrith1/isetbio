@@ -86,23 +86,25 @@ function [coneDensity,params,comment] = coneDensityReadData(varargin)
 % 02/17/19  npc  Added useParfor k/v pair
 %
 %% Parse inputs
+varargin = ieParamFormat(varargin);
+
 p = inputParser;
 p.KeepUnmatched = true;
 p.addParameter('species','human', @ischar);
-p.addParameter('coneDensitySource','Curcio1990',@(x) (ischar(x) | isa(x,'function_handle')));
+p.addParameter('conedensitysource','curcio1990',@(x) (ischar(x) | isa(x,'function_handle')));
 p.addParameter('eccentricity',0, @isnumeric);
 p.addParameter('angle',0, @isnumeric);
-p.addParameter('whichEye','left',@(x)(ismember(x,{'left','right'})));
-p.addParameter('eccentricityUnits','m',@ischar);
-p.addParameter('angleUnits','deg',@ischar);
-p.addParameter('useParfor', false, @(x)((islogical(x))||(isempty(x))));
+p.addParameter('whicheye','left',@(x)(ismember(x,{'left','right'})));
+p.addParameter('eccentricityunits','m',@ischar);
+p.addParameter('angleunits','deg',@ischar);
+p.addParameter('useparfor', false, @(x)((islogical(x))||(isempty(x))));
 p.parse(varargin{:});
 
 %% Set up params return.
 params = p.Results;
 
-if (isempty(params.useParfor))
-    params.useParfor = false;
+if (isempty(params.useparfor))
+    params.useparfor = false;
 end
 
 %% Take care of case where a function handle is specified as source
@@ -111,14 +113,14 @@ end
 % could live outside of ISETBio.
 %
 % This function needs to handle 
-if (isa(params.coneDensitySource,'function_handle'))
-    [coneDensity,params,comment] = params.coneDensitySource(varargin{:});
+if (isa(params.conedensitysource,'function_handle'))
+    [coneDensity,params,comment] = params.conedensitysource(varargin{:});
     return;
 end
 
 
 %% Handle units
-switch (params.eccentricityUnits)
+switch (params.eccentricityunits)
     case 'm'
         eccMM = params.eccentricity*1e3;
     case 'mm'
@@ -132,7 +134,7 @@ switch (params.eccentricityUnits)
 end
 params.eccentricity = NaN;
 
-switch (params.angleUnits)
+switch (params.angleunits)
     case 'deg'
         angleDeg = params.angle;
     case 'rad'
@@ -165,22 +167,25 @@ end
 %% Handle choices
 switch (params.species)
     case {'human'}
-        switch (params.coneDensitySource)
-            case {'Curcio1990', 'Song2011Old', 'Song2011Young'}
-                % Load the digitized cone density from the ISETBio style mat file.  The
-                % data file has separate structs for inferior, nasal, superior and temporal meridians.
-                % These each have fields 'density' as a function of 'eccMM' in units of cones/mm2.
-                switch (params.coneDensitySource)
-                    case 'Curcio1990'
+        src = ieParamFormat(params.conedensitysource);
+        switch src
+            case {'curcio1990', 'song2011old', 'song2011young'}
+                % Load the digitized cone density from the ISETBio style
+                % mat file.  The data file has separate structs for
+                % inferior, nasal, superior and temporal meridians. These
+                % each have fields 'density' as a function of 'eccMM' in
+                % units of cones/mm2.
+                switch src
+                    case 'curcio1990'
                         theData = rawDataReadData('coneDensityCurcio1990','datatype','isetbiomatfileonpath');
-                    case 'Song2011Old'
+                    case 'song2011old'
                         theData = rawDataReadData('coneDensitySong2011Old','datatype','isetbiomatfileonpath');
-                    case 'Song2011Young'
+                    case 'song2011young'
                         theData = rawDataReadData('coneDensitySong2011Young','datatype','isetbiomatfileonpath');
                 end
                 
-                % Set up for interpolation for retinal position amplitude on each axis (nasal, superior,
-                % temporal and inferior)
+                % Set up for interpolation for retinal position amplitude
+                % on each axis (nasal, superior, temporal and inferior)
                 onAxisD = zeros(5, numel(eccMM));
                 angleQ = [0 90 180 270 360];
                 
@@ -189,7 +194,7 @@ switch (params.species)
                 onAxisD(4,:) = interp1(theData.inferior.eccMM, theData.inferior.density, eccMM);
                 
                 % Nasal and temporal, respecting our le/re coordinate convention.
-                switch lower(params.whichEye)
+                switch lower(params.whicheye)
                     case 'left'
                         onAxisD(1,:) = interp1(theData.nasal.eccMM, theData.nasal.density, eccMM);
                         onAxisD(3,:) = interp1(theData.temporal.eccMM, theData.temporal.density, eccMM);
@@ -204,7 +209,7 @@ switch (params.species)
                 % Interpolate for each angle
                 coneDensity = zeros(1,length(eccMM));
                 
-                if (params.useParfor)
+                if (params.useparfor)
                     % For large mosaics (>5 deg), having a parfor loop here
                     % reduced computation time significantly because this
                     % function is called all the time during the iterative

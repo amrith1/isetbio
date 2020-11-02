@@ -326,9 +326,11 @@ classdef coneMosaic < hiddenHandle
             %    * TODO:  Use ieParamFormat to simplify naming and allow
             %    spacing of the input arguments.
             
+            varargin = ieParamFormat(varargin);
+            
             p = inputParser;
             p.KeepUnmatched = true;
-            p.addParameter('name', 'cone mosaic', @ischar);
+            p.addParameter('name', 'conemosaic', @ischar);
             p.addParameter('pigment', photoPigment(), ...
                 @(x) isa(x, 'photoPigment'));
             p.addParameter('macular', Macular(), @(x)isa(x, 'Macular'));
@@ -338,19 +340,19 @@ classdef coneMosaic < hiddenHandle
             
             p.addParameter('eccentricityunits', 'm', @ischar); % Should check for valid
 
-            p.addParameter('whichEye', 'left', ...
+            p.addParameter('whicheye', 'left', ...
                 @(x) ismember(x, {'left', 'right'}));
             p.addParameter('wave', 400:10:700, @isnumeric);
             p.addParameter('pattern', [], @isnumeric);
-            p.addParameter('spatialDensity', [0 0.6 0.3 0.1], @isnumeric);
+            p.addParameter('spatialdensity', [0 0.6 0.3 0.1], @isnumeric);
             p.addParameter('size', [72 88], @isnumeric);
-            p.addParameter('micronsPerDegree', 300, @isnumeric);
-            p.addParameter('integrationTime', 0.005, @isscalar);
-            p.addParameter('emPositions', [0 0], @isnumeric);
-            p.addParameter('apertureBlur', false, @islogical);
-            p.addParameter('noiseFlag', 'random', ...
+            p.addParameter('micronsperdegree', 300, @isnumeric);
+            p.addParameter('integrationtime', 0.005, @isscalar);
+            p.addParameter('empositions', [0 0], @isnumeric);
+            p.addParameter('apertureblur', false, @islogical);
+            p.addParameter('noiseflag', 'random', ...
                 @(x)(ismember(lower(x), coneMosaic.validNoiseFlags)));
-            p.addParameter('useParfor', false, @islogical);
+            p.addParameter('useparfor', false, @islogical);
             p.parse(varargin{:});
 
             % Set properties
@@ -359,15 +361,15 @@ classdef coneMosaic < hiddenHandle
             obj.macular = p.Results.macular;
 
             obj.center   = p.Results.center(:)';
-            obj.whichEye = p.Results.whichEye;
+            obj.whichEye = p.Results.whicheye;
             obj.wave     = p.Results.wave;
-            obj.spatialDensity_   = p.Results.spatialDensity(:);
-            obj.integrationTime   = p.Results.integrationTime;
-            obj.micronsPerDegree  = p.Results.micronsPerDegree;
+            obj.spatialDensity_   = p.Results.spatialdensity(:);
+            obj.integrationTime   = p.Results.integrationtime;
+            obj.micronsPerDegree  = p.Results.micronsperdegree;
             obj.coneDarkNoiseRate = [0 0 0];
-            obj.noiseFlag   = p.Results.noiseFlag;
-            obj.emPositions = p.Results.emPositions;
-            obj.useParfor   = p.Results.useParfor;
+            obj.noiseFlag   = p.Results.noiseflag;
+            obj.emPositions = p.Results.empositions;
+            obj.useParfor   = p.Results.useparfor;
             
             % Construct outersgement if not passed.
             if (isempty(p.Results.os))
@@ -423,7 +425,7 @@ classdef coneMosaic < hiddenHandle
             obj.os.patchSize = obj.width;
 
             % Blur by aperture
-            obj.apertureBlur = p.Results.apertureBlur;
+            obj.apertureBlur = p.Results.apertureblur;
 
             % Initialize listener
             %
