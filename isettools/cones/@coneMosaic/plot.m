@@ -72,10 +72,11 @@ function [uData, hf] = plot(obj, plotType, varargin)
 %{
     coneMosaic.plot('impulse response')
     coneMosaic.plot('cone mosaic')
+    coneMosaic.plot('h line absorptions',
 %}
 
-%% Check plot type string if we send this off to the os plot routine
-%
+%% Check plot type string to see if we send this off to os.plot
+
 % (Might Find a cleaner way to check and send to os.plot.
 %  Maybe create a parse argument string as in ISET.)
 if (length(plotType) > 3 && strcmp(plotType(1:3), 'os '))
@@ -86,7 +87,8 @@ elseif (length(plotType) > 13 && strcmp(plotType(1:13), 'outersegment '))
     return;
 end
 
-%% It is a cone mosaic plot, not an os plot.
+%% A cone mosaic plot.
+
 % Add to this list when you put in a new type of plot. The validation
 % squeezes out the spaces and makes lower case.
 validPlots = {'help', ...
@@ -109,13 +111,13 @@ if isequal(plotType, 'help')
     for ii = 2:length(validPlots), fprintf('\t%s\n', validPlots{ii}); end
     return;
 else
-    % Makes less readable, but better for programming. I
-    for ii = 1:length(validPlots)
-        validPlots{ii} = ieParamFormat(validPlots{ii});
-    end
+    % Remove the spaces and force to lower case.
+    validPlots = ieParamFormat(validPlots);
 end
 
 %% Onward
+varargin = ieParamFormat(varargin);
+
 p = inputParser;
 p.KeepUnmatched = true;
 p.addRequired('obj');
@@ -128,8 +130,9 @@ p.addRequired('pType', @(x) any(validatestring(ieParamFormat(x), ...
 
 p.addParameter('hf', []);             % Figure handle
 p.addParameter('oi', [], @isstruct);  % Used for spectral qe
-p.addParameter('x', [], @isscalar);   % x axis value
-p.addParameter('y', [], @isscalar);   % y axis value
+% p.addParameter('x', [], @isscalar);   % x axis value
+% p.addParameter('y', [], @isscalar);   % y axis value
+p.addParameter('xy',[], @isvector)     % Point used for plotting
 
 p.parse(obj, plotType, varargin{:});
 hf = p.Results.hf;
@@ -250,14 +253,20 @@ switch ieParamFormat(plotType)
         data = mean(obj.absorptions, 3);
 
         % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
 
         % Draw a circle around the selected point.
         viscircles([x, y], 0.7);
-        vcNewGraphWin;
+        
+        ieNewGraphWin;
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'k-', 'LineWidth', 2);
@@ -282,12 +291,21 @@ switch ieParamFormat(plotType)
 
         % The plots below are with respect to a point.
         % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+
+        % The plots below are with respect to a point.
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
+        
         viscircles([x, y], 0.7);
 
-        vcNewGraphWin([], 'tall'); names = 'LMS';
+        ieNewGraphWin([], 'tall'); names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
@@ -323,14 +341,22 @@ switch ieParamFormat(plotType)
         mx = max(data(:));
         mn = min(data(:));
 
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        % The plots below are with respect to a point.
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
+        
         viscircles([x, y], 0.7);
 
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
 
-        vcNewGraphWin;         
+        ieNewGraphWin;         
         yStr = 'Absorptions per frame';
         data = squeeze(data(y, x, :));
         plot(t, squeeze(data), 'LineWidth', 2);
@@ -373,15 +399,21 @@ switch ieParamFormat(plotType)
     case {'hlinecurrent', 'vlinecurrent'}
         data = mean(obj.current, 3);
 
+
         % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-
+        
         % Draw a circle around the selected point.
         viscircles([x, y], 0.7);
-        vcNewGraphWin;
+        ieNewGraphWin;
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'LineWidth', 2);
@@ -403,12 +435,21 @@ switch ieParamFormat(plotType)
 
         % The plots below are with respect to a point.
         % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+
+        % The plots below are with respect to a point.
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
+        
         viscircles([x, y], 0.7);
 
-        vcNewGraphWin([], 'tall');
+        ieNewGraphWin([], 'tall');
         names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Photocurrent (pA)';
@@ -443,14 +484,22 @@ switch ieParamFormat(plotType)
         mx = max(data(:));
         mn = min(data(:));
 
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        % The plots below are with respect to a point.
+        % Get the point Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            [x, y] = ginput(1); 
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
+        
         viscircles([x, y], 0.7);
 
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
 
-        vcNewGraphWin;
+        ieNewGraphWin;
         yStr = 'Absorptions per frame';
         plot(t, squeeze(data(y, x, :)), 'LineWidth', 2);
         uData.x = t;

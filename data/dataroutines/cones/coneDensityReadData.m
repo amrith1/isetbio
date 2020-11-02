@@ -5,19 +5,8 @@ function [coneDensity,params,comment] = coneDensityReadData(varargin)
 %     [coneDensity,params,comment] = coneDensityReadData;
 %     coneDensity = coneDensityReadData('eccentricity',8*1e-3,'angle',10,'whichEye','left');
 %
-% Description:
+% Brief Description:
 %     Compute cone packing density as a function of retinal position.
-%
-%     For the left eye, the coordinate system is 0 degrees angle corresponds
-%     to the nasal meridian, 90 degrees to superior, 180 to temporal and 270
-%     to inferior.
-%
-%     For the right eye, the coordinate system is 0 degrees angle corresponds
-%     to the temporal meridian, 90 degrees to superior, 180 to nasal, and 270
-%     to inferior.
-%
-%     If an eccentricity beyond the range of the underlying data source is requested,
-%     NaN is returned.
 %
 % Input:
 %     None.
@@ -25,9 +14,7 @@ function [coneDensity,params,comment] = coneDensityReadData(varargin)
 % Output:
 %     coneDensity                Cone packing density in cones/mm^2. Returned as a row vector
 %                                of same length as eccentricity and angle.
-%
 %     params                     Structure of key/value pairs used to generate data.
-%
 %     comment                    A short comment describing the data, returned as a string.
 %
 % Optional key/value pairs
@@ -69,6 +56,20 @@ function [coneDensity,params,comment] = coneDensityReadData(varargin)
 %                               long time. This is useful when generating
 %                               large > 5 deg mosaics.
 %
+% Description
+%   Reads data from the literature, stored in ISETBio, to provide an
+%   estimate of the cone density.  These data are used by coneSizeReadData
+%   to further estimate the cone aperture and spacing.
+%
+%   For the left eye, 0 degrees angle corresponds to the nasal meridian, 90
+%   degrees to superior, 180 to temporal and 270 to inferior.
+%
+%   For the right eye, 0 degrees angle corresponds to the temporal
+%   meridian, 90 degrees to superior, 180 to nasal, and 270 to inferior.
+%
+%   If an eccentricity beyond the range of the underlying data source is
+%   requested, NaN is returned.
+%
 % References:
 %   1) Curcio, C. A., Sloan, K. R., Kalina, R. E. and Hendrickson, A. E.
 %      (1990), Human photoreceptor topography. J. Comp. Neurol., 292:
@@ -78,7 +79,9 @@ function [coneDensity,params,comment] = coneDensityReadData(varargin)
 %      Eccentricity and Age. Investigative Ophthalmology & Visual Science,
 %      52(10), 7376-7384. http://doi.org/10.1167/iovs.11-7199
 %
-% See also: coneMosaic, coneSize, coneDensitySong2011MakeData.
+% See also:
+%   tls_conesSizeEccentricity.mlx
+%   coneMosaic, coneSize, coneDensitySong2011MakeData.
 
 % HJ, ISETBIO TEAM, 2015
 %

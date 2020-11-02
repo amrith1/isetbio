@@ -26,28 +26,27 @@ function [spacing, aperture, density, params, comment] = coneSizeReadData(vararg
 %                  coneDensityReadData. 
 %
 % Optional key/value pairs
-%    'species'                  What species? 'human' (default)
-%    'cone density source'      Source for cone density estimate, on which other values are based.
-%                               This is passed on to coneDensityReadData.  See help for that function.
-%    'eccentricity'             Retinal eccentricity, default is 0.  Units according
-%                               to eccentricityUnits.  May be a vector,
-%                               must have same length as angle.
-%    'angle'                    Polar angle of retinal position in degrees (default 0).  Units
-%                               according to angleUnits.  May be a vector, must have
-%                               same size as eccentricity.
-%    'which eye'                Which eye, 'left' or 'right' (default 'left').
-%    'eccentriticy units'       String specifying units for eccentricity.
+%    'species'                What species? 'human' (default)
+%    'cone density source'    Source for cone density estimate, on which
+%            other values are based. This is passed on to
+%            coneDensityReadData. See help for that function.
+%    'eccentricity'           Retinal eccentricity, default is 0.
+%    'angle'                  Polar angle of retinal position in degrees
+%                             (default 0). May be a vector same numel as
+%                             eccentricity.
+%    'which eye'              Which eye, 'left' or 'right' (default 'left').
+%    'eccentriticy units'     String specifying units for eccentricity.
 %                                  'm'                  Meters (default).             
 %                                  'mm'                 Millimeters.
 %                                  'um'                 Micrometers.
 %                                  'deg'                Degrees of visual angle, 0.3 mm/deg.
-%    'angle units'              String specifying units  for angle.
+%    'angle units'            String specifying units  for angle.
 %                                  'deg'                Degrees (default).
 %                                  'rad'                Radians.
-%    'use parfor'               Logical. Default false. Used to parallelize
-%                               the interp1 function calls which take a
-%                               long time. This is useful when generating
-%                               large > 5 deg mosaics.
+%    'use parfor'             Logical. Default false. Used to parallelize
+%                             the interp1 function calls which take a
+%                             long time. This is useful when generating
+%                             large > 5 deg mosaics.
 %
 % See also: 
 %   coneDensityReadData
@@ -59,24 +58,26 @@ function [spacing, aperture, density, params, comment] = coneSizeReadData(vararg
 
 % Example:
 %{
+  % Returns a single value
   [spacing, aperture, density, params, comment] = coneSizeReadData;
 %}
 %{
- % Arrays are possible, too.
- ecc = logspace(0,1,10);
+ % Input arrays of eccentricities and angles 
+ ecc = logspace(-0.5,1.5,20);
  angles = ones(size(ecc))*90;
- [spacing,aperture] = ...
+ [spacing,aperture,density] = ...
         coneSizeReadData('eccentricity',ecc, 'eccentricity units','deg', ...
-                         'angle',angles,'angle units','deg');
- ieNewGraphWin;
- plot(ecc,aperture); grid on;
+                         'angle',angles,'angle units','deg',...
+                         'cone density source','curcio1990');
+ ieNewGraphWin([],'tall');
+ subplot(2,1,1); semilogy(ecc,pi*(aperture).^2); grid on;
  xlabel('Eccentricity (deg)')
- ylabel('Cone aperture diameter (meters)');
-
+ ylabel('Cone aperture area (m^2)');
+ subplot(2,1,2); semilogy(ecc,density); grid on;
+ xlabel('Eccentricity (deg)')
+ ylabel('Cone density (cones/mm^2)');
 %}
-%{
 
-%}
 %% Parse inputs
 varargin = ieParamFormat(varargin);
 
@@ -114,8 +115,10 @@ end
 conesPerMM = sqrt(density);
 conesPerM = conesPerMM*1e3;
 
-%% Compute spacing and aperture
+%% Compute spacing 
 spacing = 1./conesPerM;
+
+%% Compute aperture
 
 % The 0.7 value should be a parameter.  It is the size of the inner segment
 % as a fraction of the spacing.  We need to document why we chose this
