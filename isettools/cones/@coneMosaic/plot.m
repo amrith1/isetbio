@@ -49,7 +49,7 @@ function [uData, hf] = plot(obj, plotType, varargin)
 %
 % Outputs:
 %    uData    - The user data
-%    hf       - The figure or axes handle
+%    hf       - Handle to the figure or axis
 %
 % Optional key/value pairs:
 %    'hf' - figure handle or control structure, the meaning of value is
@@ -130,9 +130,7 @@ p.addRequired('pType', @(x) any(validatestring(ieParamFormat(x), ...
 
 p.addParameter('hf', []);             % Figure handle
 p.addParameter('oi', [], @isstruct);  % Used for spectral qe
-% p.addParameter('x', [], @isscalar);   % x axis value
-% p.addParameter('y', [], @isscalar);   % y axis value
-p.addParameter('xy',[], @isvector)     % Point used for plotting
+p.addParameter('xy',[], @isvector)    % Point used for plotting
 
 p.parse(obj, plotType, varargin{:});
 hf = p.Results.hf;
@@ -140,7 +138,11 @@ oi = p.Results.oi;                    % Used in plotGraphs routine
 
 %% Initialize where we'll plot
 if isempty(hf)
-    hf = ieNewGraphWin;
+    if contains(plotType,'lms')
+        hf = ieNewGraphWin([],'tall');
+    else
+        hf = ieNewGraphWin;
+    end
 elseif isgraphics(hf, 'figure')
     figure(hf);
 elseif isgraphics(hf, 'axes')
@@ -256,17 +258,14 @@ switch ieParamFormat(plotType)
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
             [x, y] = ginput(1); 
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
         end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-
-        % Draw a circle around the selected point.
-        viscircles([x, y], 0.7);
         
-        ieNewGraphWin;
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'k-', 'LineWidth', 2);
@@ -296,16 +295,16 @@ switch ieParamFormat(plotType)
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
             [x, y] = ginput(1); 
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
         end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        
-        viscircles([x, y], 0.7);
 
-        ieNewGraphWin([], 'tall'); names = 'LMS';
+        figure(hf);
+        names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
@@ -345,28 +344,23 @@ switch ieParamFormat(plotType)
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
             [x, y] = ginput(1); 
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
         end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        
-        viscircles([x, y], 0.7);
 
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
 
-        ieNewGraphWin;         
+        figure(hf);         
         yStr = 'Absorptions per frame';
         data = squeeze(data(y, x, :));
         plot(t, squeeze(data), 'LineWidth', 2);
         uData.timerseries = t;
-        uData.x = t;
-        uData.y = data;
-        uData.pos = [x, y];
-        grid on;
-        xlabel('Time (ms)');
-        ylabel(yStr);
+        uData.x = t; uData.y = data; uData.pos = [x, y];
+        grid on; xlabel('Time (ms)'); ylabel(yStr);
         set(gca, 'ylim', [mn mx]);
 
     case 'meancurrent'
@@ -399,11 +393,11 @@ switch ieParamFormat(plotType)
     case {'hlinecurrent', 'vlinecurrent'}
         data = mean(obj.current, 3);
 
-
         % The plots below are with respect to a point.
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
-            [x, y] = ginput(1); 
+            [x, y] = ginput(1);
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
@@ -411,9 +405,7 @@ switch ieParamFormat(plotType)
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
         
-        % Draw a circle around the selected point.
-        viscircles([x, y], 0.7);
-        ieNewGraphWin;
+        figure(hf);
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'LineWidth', 2);
@@ -439,17 +431,16 @@ switch ieParamFormat(plotType)
         % The plots below are with respect to a point.
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
-            [x, y] = ginput(1); 
+            [x, y] = ginput(1);
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
         end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        
-        viscircles([x, y], 0.7);
 
-        ieNewGraphWin([], 'tall');
+        figure(hf);
         names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Photocurrent (pA)';
@@ -488,26 +479,22 @@ switch ieParamFormat(plotType)
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
             [x, y] = ginput(1); 
+            viscircles([x, y], 0.7);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
         end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        
-        viscircles([x, y], 0.7);
 
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
 
-        ieNewGraphWin;
+        figure(hf);
         yStr = 'Absorptions per frame';
         plot(t, squeeze(data(y, x, :)), 'LineWidth', 2);
-        uData.x = t;
-        uData.y = squeeze(data(y, x, :));
+        uData.x = t; uData.y = squeeze(data(y, x, :));
         uData.pos = [x, y];
-        grid on;
-        xlabel('Time (ms)');
-        ylabel(yStr);
+        grid on; xlabel('Time (ms)'); ylabel(yStr);
         set(gca, 'ylim', [mn mx]);
 
     case 'impulseresponse'
