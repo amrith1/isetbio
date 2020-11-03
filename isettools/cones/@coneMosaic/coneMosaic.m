@@ -396,7 +396,9 @@ classdef coneMosaic < hiddenHandle
             ang = atan2d(obj.center(2), obj.center(1));
             
             % Removed first argument of p.Unmatched.  I don't like sending
-            % in who knows what.
+            % in some unknown set of parameters for no specific reason.
+            %
+            % The spacing and aperture parameters are returned in meters.
             [spacing, aperture] = coneSizeReadData(...
                 'eccentricity', ecc, ...
                 'eccentricity units', p.Results.eccentricityunits, ...
