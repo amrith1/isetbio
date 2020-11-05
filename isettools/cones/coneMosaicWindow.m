@@ -833,22 +833,22 @@ end
 % Figure out which plot was requested and build the command
 switch ieParamFormat(source.Label)
     case 'hlineresponse'
-        cmd = ['hline', dataType];
+        cmd = ['hline', dataType]; hf = [];
     case 'vlineresponse'
-        cmd = ['vline', dataType];
+        cmd = ['vline', dataType]; hf = [];
     case 'hlinelms'
-        cmd = ['hline', dataType, 'lms'];
+        cmd = ['hline', dataType, 'lms']; hf = [];
     case 'vlinelms'
-        cmd = ['vline', dataType, 'lms'];
+        cmd = ['vline', dataType, 'lms']; hf = [];
     case 'timeseries'
-        cmd = ['time series', dataType];
+        cmd = ['time series', dataType]; hf = [];
     otherwise
         error('Unknown plot type %s\n', source.label);
 end
 
 % Call the plot command, setting the main window axis for the first place
 % to start.
-handles.cMosaic.plot(cmd, 'hf', handles.axes2);
+handles.cMosaic.plot(cmd, 'hf', hf);
 
 end
 

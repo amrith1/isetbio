@@ -1,8 +1,8 @@
-function [h, pts] = ieShape(shape, varargin)
+function [shapeHdl, pts] = ieShape(shape, varargin)
 % Draw a shape on the current window
 %
 % Syntax:
-%   [h, pts] = ieShape(type, [varargin])
+%   [shapeHdl, pts] = ieShape(type, [varargin])
 %
 % Description:
 %    This function will draw a shape on the current window.
@@ -10,12 +10,13 @@ function [h, pts] = ieShape(shape, varargin)
 %    Examples in the code.
 %
 % Inputs:
-%    shape     - Required input variable, with possible options of 'line', 
-%                'circle', 'rectangle', or 'ellipse' The shapes have the
-%                following optional parameters listed below.
+%    shape     - Required input variable, with possible options of 
+%                   'line', 'circle', 'rectangle', or 'ellipse' 
+%                The shapes have the following optional parameters listed
+%                below. 
 %
 % Outputs:
-%    h         - Handle containin the shape's information
+%    shapeHdl  - Handle containin the shape's information
 %    pts       - collection of points to draw
 %
 % Optional key/value pairs:
@@ -105,8 +106,11 @@ switch shape
         % course. Otherwise it's not a circle.
         hold on
         for ii = 1:nCircles
-            pts = circle(center(ii, :), radius(ii), nSamp);
-            h = plot(pts(:, 2), pts(:, 1), colors(ii));
+            shapeHdl = images.roi.Circle(gca,'Center',center(ii,:),...
+                'Radius',radius(ii), ...
+                'Color',colors(ii));
+            % pts = circle(center(ii, :), radius(ii), nSamp);
+            % shapeHdl = plot(pts(:, 2), pts(:, 1), colors(ii));
         end
         axis equal
         hold off
@@ -162,10 +166,10 @@ switch shape
             pts = bsxfun(@plus, ptsCircle * D * R, center(ii, :));
             %pts = ptsCircle * D * R + repmat(center, nSamp, 1);
             if isempty(fillArray)
-                h = plot(pts(:, 2), pts(:, 1), colors(ii), ...
+                shapeHdl = plot(pts(:, 2), pts(:, 1), colors(ii), ...
                     'linewidth', .2);
             else
-                h = patch(pts(:, 2), pts(:, 1), fillArray(ii) ./ ...
+                shapeHdl = patch(pts(:, 2), pts(:, 1), fillArray(ii) ./ ...
                     fillArrayMax);%, 'linewidth', .2);
             end
         end
@@ -180,14 +184,14 @@ switch shape
     case 'rectangle'
         % rect = [10 10 50 50];
         % ieDrawShape('rectangle', rect);
-        h = rectangle('Position', p.Results.rect);
-        set(h, 'edgecolor', p.Results.color);
+        shapeHdl = rectangle('Position', p.Results.rect);
+        set(shapeHdl, 'edgecolor', p.Results.color);
         pts = p.Results.rect;
     case 'line'
         % X = [0 96];
         % Y = [32 32];
         % ieDrawShape(obj, 'line', X , Y);
-        h = line(p.Results.lineX, p.Results.lineY, 'LineWidth', 2, ...
+        shapeHdl = line(p.Results.lineX, p.Results.lineY, 'LineWidth', 2, ...
             'color', p.Results.color);
         pts(:, 1) = p.Results.lineX(:);
         pts(:, 2) = p.Results.lineY(:);
@@ -197,6 +201,7 @@ end
 
 end
 
+%{
 function pts = circle(center, r, nPts)
 % Calculate the circle
 %
@@ -224,3 +229,4 @@ pts(:, 1) = r .* cos(t) + center(1);
 pts(:, 2) = r .* sin(t) + center(2); 
 
 end
+%}

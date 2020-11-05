@@ -182,26 +182,6 @@ switch ieParamFormat(plotType)
             locs    = obj.coneLocs;
             pattern = obj.pattern(:);
             
-            % We used to speed things up when there are a lot of cones But on
-            % my new Mac even with 200,000 cones things are fast enough. There
-            % may be people on slower older Macs.  Not sure what to do but
-            % maybe this.
-            %{
-           nCones  = size(obj.coneLocs, 1);
-           maxCones = 5e4;
-           if  nCones > maxCones
-            disp('Displaying subsampled (50K) version')
-            lst = randi(nCones, [maxCones, 1]);
-            lst = unique(lst);
-            locs = locs(lst, :);
-            pattern = pattern(lst, :);
-
-             % Need to check the rendering when there are a lot of cones
-             % support = round([nCones / maxCones, nCones / maxCones]);
-             % spread = 2 * support(1);
-            end
-            %}
-            
             % The locations are converted to microns from meters, I think.
             [axisData.support, axisData.spread, axisData.delta, axisData.mosaicImage] = ...
                 conePlot(locs * 1e6, pattern);
@@ -257,8 +237,16 @@ switch ieParamFormat(plotType)
         % The plots below are with respect to a point.
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
-            [x, y] = ginput(1); 
-            viscircles([x, y], 0.7);
+            figure(obj.hdl);
+            [x, y] = ginput(1);
+            % ieShape('circle', 'center', [x y], 'radius', 5, 'nSamp', 50, 'color', 'r--');
+            switch plotType(1)
+                case 'h'
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y y], 'color', 'c');
+                case 'v'
+                    ieShape('line', 'lineX', [x x], 'lineY', [1 size(data,1)], 'color', 'c');
+            end
+            figure(hf);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
@@ -294,8 +282,16 @@ switch ieParamFormat(plotType)
         % The plots below are with respect to a point.
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
-            [x, y] = ginput(1); 
-            viscircles([x, y], 0.7);
+            figure(obj.hdl);
+            [x, y] = ginput(1);
+            % ieShape('line', 'center', [x y], 'radius', 5, 'nSamp', 50, 'color', 'r--');
+            switch plotType(1)
+                case 'h'
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y y], 'color', 'c');
+                case 'v'
+                    ieShape('line', 'lineX', [x x], 'lineY', [1 size(data,1)], 'color', 'c');
+            end
+            figure(hf);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
@@ -303,7 +299,6 @@ switch ieParamFormat(plotType)
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
 
-        figure(hf);
         names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Absorptions per frame';
@@ -343,8 +338,10 @@ switch ieParamFormat(plotType)
         % The plots below are with respect to a point.
         % Get the point Rounded and clipped to the data
         if isempty(p.Results.xy)
+            figure(obj.hdl);
             [x, y] = ginput(1); 
-            viscircles([x, y], 0.7);
+            ieShape('circle', 'center', [x y], 'radius', 5, 'nSamp', 50, 'color', 'c--');
+            figure(hf);
         else
             x = p.Results.xy(1);
             y = p.Results.xy(2);
@@ -354,7 +351,6 @@ switch ieParamFormat(plotType)
 
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
 
-        figure(hf);         
         yStr = 'Absorptions per frame';
         data = squeeze(data(y, x, :));
         plot(t, squeeze(data), 'LineWidth', 2);
