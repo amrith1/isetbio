@@ -153,6 +153,7 @@ if ~quiet
             else
                 thisFig = ieNewGraphWin;
             end
+            set(thisFig,'Visible','off')
             
             co = get(gca, 'ColorOrder');
             if size(co,1) == 7    % Figure
@@ -166,6 +167,7 @@ if ~quiet
         otherwise
             %
     end
+    if ~isempty(app), figure(app.figure1); end
 end
 
 %% Switch on passed plot type
@@ -231,14 +233,13 @@ switch plotType
         data = mean(obj.absorptions, 3);
         
         if isempty(p.Results.xy)
-            disp('Selecting cm window')
-            figure(app.figure1);
-            pt = iePointSelect(obj);
+            axis(app.axes2);
+            pt = iePointSelect(obj); x = pt(1); y = pt(2);
             switch plotType(1)
                 case 'h'
-                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [pt(2), pt(2)], 'color', 'c');
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
                 case 'v'
-                    ieShape('line', 'lineX', [pt(1), pt(1)], 'lineY', [1 size(data,1)], 'color', 'c');
+                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
             end
         else
             x = p.Results.xy(1);
@@ -247,7 +248,7 @@ switch plotType
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
         
-        figure(thisFig);
+        set(thisFig,'Visible','on')
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'k-', 'LineWidth', 2);
