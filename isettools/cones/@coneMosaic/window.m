@@ -38,6 +38,6 @@ p.addRequired('obj',@(x)(isa(x,'coneMosaic')));
 p.addParameter('show','meanabsorptions',@(x)(ismember(ieParamFormat(x),valid)));
 
 p.parse(obj,varargin{:});
-coneMosaicWindow_App(obj,p.Results.show);
+obj.app = coneMosaicWindow_App(obj,p.Results.show);
 
 end

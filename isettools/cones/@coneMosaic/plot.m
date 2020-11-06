@@ -126,38 +126,45 @@ validPlots = cellfun(@(x)(ieParamFormat(x)), validPlots, ...
 p.addRequired('pType', @(x) any(validatestring(ieParamFormat(x), ...
     validPlots)));
 
-p.addParameter('hf', []);             % Figure handle
+p.addParameter('app',[],@(x)(isa(x,'coneMosaicWindow_App')));
 p.addParameter('oi', [], @isstruct);  % Used for spectral qe
-p.addParameter('x', [], @isscalar);   % x axis value
-p.addParameter('y', [], @isscalar);   % y axis value
+p.addParameter('xy',[], @isvector)    % Point used for plotting
+p.addParameter('quiet',false,@islogical);  % Suppress plotting
 
 p.parse(obj, plotType, varargin{:});
-hf = p.Results.hf;
-oi = p.Results.oi;                    % Used in plotGraphs routine
-
-%% Initialize where we'll plot
-if isempty(hf)
-    hf = ieNewGraphWin;
-elseif isgraphics(hf, 'figure')
-    figure(hf);
-elseif isgraphics(hf, 'axes')
-    axes(hf);
-end
+plotType = ieParamFormat(plotType);
+app   = p.Results.app;
+oi    = p.Results.oi;       % Used in plotGraphs routine
+quiet = p.Results.quiet;
 
 %% Set color order so that LMS plots as RGB
 
-% Set color order so that LMS plots as RGB
+% If appropriate, open plot figure color order so that LMS plots as RGB
 % Matlab default is 7 colors, and we reorder
 % If the user has changed the default, we leave it alone.
-if ~isequal(hf, 'none')
-    co = get(gca, 'ColorOrder');  
-    if size(co,1) == 7    % Figure        
-        if isgraphics(hf, 'axes')
-            set(get(hf, 'parent'), ...
-                'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :))
-        else
-            set(hf, 'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :));
-        end
+thisFig = [];
+if ~quiet
+    switch plotType
+        case {'hlineabsorptions', 'vlineabsorptions',...
+                'hlineabsorptionslms', 'vlineabsorptionslms',...
+                'timeseriescurrent''timeseriesabsorptions'}
+            if isequal(plotType((end-3):end),'lms')
+                thisFig = ieNewGraphWin([],'tall');
+            else
+                thisFig = ieNewGraphWin;
+            end
+            
+            co = get(gca, 'ColorOrder');
+            if size(co,1) == 7    % Figure
+                if isgraphics(gca, 'axes')
+                    set(get(gca, 'parent'), ...
+                        'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :))
+                else
+                    set(gca, 'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :));
+                end
+            end
+        otherwise
+            %
     end
 end
 
@@ -166,36 +173,16 @@ end
 % When we draw into the main axis in the cMosaic window, we store the user
 % data in that window.  Otherwise, we build up some user data in a new
 % variable that is stored in the temporary plotting window.
-switch ieParamFormat(plotType)
+switch plotType
     case 'conemosaic'
-        axisData = get(gca,'UserData');  % Main axis in the window
-
+        % axisData = get(gca,'UserData');  % Main axis in the window
+        axisData = get(app.axes2,'UserData');
         if isfield(axisData,'mosaicImage') && ~isempty(axisData.mosaicImage)
             imagesc(axisData.mosaicImage)
             axis off; axis image;
         else
             locs    = obj.coneLocs;
             pattern = obj.pattern(:);
-            
-            % We used to speed things up when there are a lot of cones But on
-            % my new Mac even with 200,000 cones things are fast enough. There
-            % may be people on slower older Macs.  Not sure what to do but
-            % maybe this.
-            %{
-           nCones  = size(obj.coneLocs, 1);
-           maxCones = 5e4;
-           if  nCones > maxCones
-            disp('Displaying subsampled (50K) version')
-            lst = randi(nCones, [maxCones, 1]);
-            lst = unique(lst);
-            locs = locs(lst, :);
-            pattern = pattern(lst, :);
-
-             % Need to check the rendering when there are a lot of cones
-             % support = round([nCones / maxCones, nCones / maxCones]);
-             % spread = 2 * support(1);
-            end
-            %}
             
             % The locations are converted to microns from meters, I think.
             [axisData.support, axisData.spread, axisData.delta, axisData.mosaicImage] = ...
@@ -204,11 +191,9 @@ switch ieParamFormat(plotType)
             axis off; axis image;
         end
         
-        set(gca,'UserData',axisData);  % Put the modified values back
+        hf.axes2.UserData = axisData;  % Put the modified values back
 
     case 'meanabsorptions'
-        axisData = get(gca,'UserData'); % Main axis in window
-
         % Image of mean absorptions per integration period
         if isempty(obj.absorptions)
             warning('no absorption data');
@@ -216,24 +201,20 @@ switch ieParamFormat(plotType)
         end
 
         % Show the data, with the gamma from the window.
-        axisData.data = mean(obj.absorptions, 3);
-        gdata = guidata(obj.hdl);
-        gam = str2double(get(gdata.editGam, 'string'));
-        imagesc((axisData.data) .^ gam);
-        axis off;
+        uData.data = mean(obj.absorptions, 3);
+        gam = str2double(app.editGam.Value);
+        imagesc((uData.data) .^ gam);
+        axis off; colormap(gray); 
 
         % Preserve the tick labels in real photons
-        colormap(gray);  % Shows a numerical value
-        cbar = colorbar;
-
-        % set(get(cbar, 'title'), 'string', 'p per frame', 'rotation', 90);
+        cbar    = colorbar;
         photons = str2double(get(cbar, 'TickLabels')) .^ (1 / gam);
         photons = num2str(round(photons));
         set(cbar, 'TickLabels', photons);
         axis image;
         title('Absorptions per integration time');
-        
-        set(gca,'UserData',axisData);  % Put it back
+
+        app.axes2.UserData= uData;  % Put it back
 
     case 'movieabsorptions'
         % Movie in gray scale
@@ -248,16 +229,25 @@ switch ieParamFormat(plotType)
     case {'hlineabsorptions', 'vlineabsorptions'}
         % Data are stored in the temporary potting window.
         data = mean(obj.absorptions, 3);
-
-        % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        
+        if isempty(p.Results.xy)
+            disp('Selecting cm window')
+            figure(app.figure1);
+            pt = iePointSelect(obj);
+            switch plotType(1)
+                case 'h'
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [pt(2), pt(2)], 'color', 'c');
+                case 'v'
+                    ieShape('line', 'lineX', [pt(1), pt(1)], 'lineY', [1 size(data,1)], 'color', 'c');
+            end
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-
-        % Draw a circle around the selected point.
-        viscircles([x, y], 0.7);
-        vcNewGraphWin;
+        
+        figure(thisFig);
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'k-', 'LineWidth', 2);

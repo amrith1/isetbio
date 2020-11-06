@@ -36,7 +36,7 @@ function [app, appAxis] = ieAppGet(obj,varargin)
 
 %% Parse
 p = inputParser;
-p.addRequired('obj',@(x)(isstruct(x) || ischar(x)));
+p.addRequired('obj',@(x)(isstruct(x) || ischar(x)) || isa(x,'coneMosaic'));
 p.addParameter('select',true,@islogical);
 p.parse(obj,varargin{:});
 select = p.Results.select;
@@ -44,6 +44,10 @@ select = p.Results.select;
 % Forces the objType string to one of original names below.
 if isstruct(obj), objType = vcEquivalentObjtype(obj.type); 
 else,             objType = vcEquivalentObjtype(obj);
+end
+
+if isa(obj,'coneMosaic')
+    objType = 'conemosaic';
 end
 
 %% Looks up the names of the app and the proper axis
@@ -69,6 +73,9 @@ switch lower(objType)
         app = ieSessionGet('display window');
         if isempty(app), error('Undefined display app'); end
         appAxis = app.displayImage;
+    case {'conemosaic'}
+        app     = obj.app;
+        appAxis = app.axes2;
     otherwise
         error('Unknown object type.');
 end
