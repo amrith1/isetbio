@@ -86,45 +86,30 @@ elseif (length(plotType) > 13 && strcmp(plotType(1:13), 'outersegment '))
     return;
 end
 
-%% It is a cone mosaic plot, not an os plot.
+%% It is a cone mosaic plot, not an os plot
+
 % Add to this list when you put in a new type of plot. The validation
 % squeezes out the spaces and makes lower case.
-validPlots = {'help', ...
-    'Cone mosaic', ...
-    'Mean absorptions', 'Movie absorptions', ...
-    'Mean current', 'Movie current', ...
-    'hline absorptions', 'hline current', ...
-    'hline absorptions lms', 'hline current lms', ...
-    'vline absorptions', 'vline current', ...
-    'vline absorptions lms', 'vline current lms' ...
-    'Impulse response', ...
-    'time series absorptions', 'time series current', ...
-    'Cone fundamentals', 'Cone spectral QE', 'Eye spectral QE', ...
-    'Macular transmittance', 'Macular absorptance', ...
-    'Macular absorbance', 'Eye movement path'};
-
-% If the person just wants help
-if isequal(plotType, 'help')
-    fprintf('\nKnown %s plot types\n--------------\n', class(obj));
-    for ii = 2:length(validPlots), fprintf('\t%s\n', validPlots{ii}); end
-    return;
-else
-    % Makes less readable, but better for programming. I
-    for ii = 1:length(validPlots)
-        validPlots{ii} = ieParamFormat(validPlots{ii});
-    end
-end
+validPlots = {'conemosaic', ...
+    'meanabsorptions', 'movieabsorptions', ...
+    'meancurrent', 'moviecurrent', ...
+    'hlineabsorptions', 'hlinecurrent', ...
+    'hlineabsorptionslms', 'hlinecurrentlms', ...
+    'vlineabsorptions', 'vlinecurrent', ...
+    'vlineabsorptionslms', 'vlinecurrentlms' ...
+    'impulseresponse', ...
+    'timeseriesabsorptions', 'timeseriescurrent', ...
+    'conefundamentals', 'conespectralqe', 'eyespectralqe', ...
+    'maculartransmittance', 'macularabsorptance', 'macularabsorbance', ...
+    'eyemovementpath'};
 
 %% Onward
 p = inputParser;
 p.KeepUnmatched = true;
 p.addRequired('obj');
 
-% Squeeze spaces and force lower case on validPlots. Then check plotType
-validPlots = cellfun(@(x)(ieParamFormat(x)), validPlots, ...
-    'UniformOutput', false);
-p.addRequired('pType', @(x) any(validatestring(ieParamFormat(x), ...
-    validPlots)));
+vFunc = @(x) any(validatestring(ieParamFormat(x), validPlots));
+p.addRequired('plotType', vFunc);
 
 p.addParameter('app',[],@(x)(isa(x,'coneMosaicWindow_App')));
 p.addParameter('oi', [], @isstruct);  % Used for spectral qe
@@ -137,7 +122,15 @@ app   = p.Results.app;
 oi    = p.Results.oi;       % Used in plotGraphs routine
 quiet = p.Results.quiet;
 
-%% Set color order so that LMS plots as RGB
+%% Make sure the data are available to plot
+
+if ieContains(plotType,'absorptions') && isempty(obj.absorptions)
+    ieInWindowMessage('No absorption data',app,3);
+    return;
+elseif ieContains(plotType,'current') && isempty(obj.current)
+    ieInWindowMessage('No current data',app,3);
+    return;
+end
 
 % If appropriate, open plot figure color order so that LMS plots as RGB
 % Matlab default is 7 colors, and we reorder
@@ -145,29 +138,28 @@ quiet = p.Results.quiet;
 thisFig = [];
 if ~quiet
     switch plotType
-        case {'hlineabsorptions', 'vlineabsorptions',...
-                'hlineabsorptionslms', 'vlineabsorptionslms',...
-                'timeseriescurrent''timeseriesabsorptions'}
-            if isequal(plotType((end-3):end),'lms')
-                thisFig = ieNewGraphWin([],'tall');
-            else
-                thisFig = ieNewGraphWin;
-            end
-            set(thisFig,'Visible','off')
-            
-            co = get(gca, 'ColorOrder');
-            if size(co,1) == 7    % Figure
-                if isgraphics(gca, 'axes')
-                    set(get(gca, 'parent'), ...
-                        'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :))
-                else
-                    set(gca, 'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :));
-                end
-            end
+        case {'hlineabsorptions', 'vlineabsorptions'}
+            thisFig = ieNewGraphWin([],[],'Visible','off');
+        case {'hlineabsorptionslms', 'vlineabsorptionslms'}
+            thisFig = ieNewGraphWin([],'tall','Visible','off');
+        case {'timeseriescurrent'}
+        case {'timeseriesabsorptions'}
+            thisFig = ieNewGraphWin([],[],'Visible','off');
         otherwise
             %
     end
     if ~isempty(app), figure(app.figure1); end
+end
+
+% Adjust plot color ordering.
+co = get(gca, 'ColorOrder');
+if size(co,1) == 7    % Figure
+    if isgraphics(gca, 'axes')
+        set(get(gca, 'parent'), ...
+            'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :))
+    else
+        set(gca, 'DefaultAxesColorOrder', co([2 5 1 3 4 6 7], :));
+    end
 end
 
 %% Switch on passed plot type
@@ -231,10 +223,11 @@ switch plotType
     case {'hlineabsorptions', 'vlineabsorptions'}
         % Data are stored in the temporary potting window.
         data = mean(obj.absorptions, 3);
-        
+
         if isempty(p.Results.xy)
             axis(app.axes2);
-            pt = iePointSelect(obj); x = pt(1); y = pt(2);
+            pt = iePointSelect(obj); 
+            x = pt(1); y = pt(2);
             switch plotType(1)
                 case 'h'
                     ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
@@ -271,14 +264,24 @@ switch plotType
         % Does not work correctly when in the cone mosaic viewing mode.
         data = mean(obj.absorptions, 3);
 
-        % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            axis(app.axes2);
+            pt = iePointSelect(obj); x = pt(1); y = pt(2);
+            switch plotType(1)
+                case 'h'
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
+                case 'v'
+                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
+            end
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        viscircles([x, y], 0.7);
-
-        vcNewGraphWin([], 'tall'); names = 'LMS';
+        
+        set(thisFig,'Visible','on')
+        names = 'LMS';
         c = {'ro-', 'go-', 'bo-'};
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
@@ -314,44 +317,53 @@ switch plotType
         mx = max(data(:));
         mn = min(data(:));
 
-        [x, y] = ginput(1); % Rounded and clipped to the data
+        if isempty(p.Results.xy)
+            axis(app.axes2);
+            pt = iePointSelect(obj); x = pt(1); y = pt(2);
+            switch plotType(1)
+                case 'h'
+                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
+                case 'v'
+                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
+            end
+        else
+            x = p.Results.xy(1);
+            y = p.Results.xy(2);
+        end
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-        viscircles([x, y], 0.7);
-
+        
+        figure(thisFig); thisFig.Visible ='on';
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
-
-        vcNewGraphWin;         
         yStr = 'Absorptions per frame';
         data = squeeze(data(y, x, :));
         plot(t, squeeze(data), 'LineWidth', 2);
-        uData.timerseries = t;
-        uData.x = t;
-        uData.y = data;
-        uData.pos = [x, y];
-        grid on;
-        xlabel('Time (ms)');
-        ylabel(yStr);
+        
+        uData.timerseries = t; uData.x = t; uData.y = data;
+        uData.pos = [x, y]; 
+        grid on; xlabel('Time (ms)'); ylabel(yStr);
         set(gca, 'ylim', [mn mx]);
 
     case 'meancurrent'
-        if isempty(obj.current), error('no photocurrent data'); end
+        if isempty(obj.current)
+            ieInWindowMessage('no photocurrent data',app); 
+            return;
+        end
+        
         data = mean(obj.current, 3);
 
         % Apply gamma. The current is always negative.
-        gdata = guidata(obj.hdl);
-        gam = str2double(get(gdata.editGam, 'string'));
+        gam = str2double(app.editGam.Value);
         if max(data(:)) > 0
             warning('Gamma correction in display is not correct');
         end
 
-        % Carry on assuming current is all negative pA.
-        % uData = -1*(abs(uData).^gam);
-        data = abs(data);
-        if ~isequal(hf, 'none'), imagesc(data .^ gam); end
-        uData.data = data;
-
+        % Carry on assuming current is all negative pA.  If it is mixed,
+        % then the abs() is not a good idea.
+        data = abs(data) .^ gam;
+        imagesc(data);
         axis off;
+        
         colormap(flipud(gray));  % Shows a numerical value
         cbar = colorbar;
         current = -1 * ...
@@ -360,6 +372,8 @@ switch plotType
         set(cbar, 'TickLabels', current);
         axis image;
         title('Photocurrent (pA)');
+
+        uData.data = data;
 
     case {'hlinecurrent', 'vlinecurrent'}
         data = mean(obj.current, 3);
