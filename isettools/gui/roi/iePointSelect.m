@@ -4,9 +4,9 @@ function [pointLoc,pt] = iePointSelect(obj,msg,nPoints)
 %   [pointLoc, pt] = iePointSelect(obj,[msg],[nPoints])
 %
 % Input
-%   obj:      An ISETCam struct (scene, oi, sensor, ip)
+%   obj:      An ISETCam/Bio struct (scene, oi, sensor, ip, coneMosaic)
 %   msg:      Message for the window
-%   nPoints:  If you want more than one point, set this to the number
+%   nPoints:  If you want more than one point, set this number
 %
 % Output
 %  pointLoc: Returns the (x,y) = (col,row) values. During the point

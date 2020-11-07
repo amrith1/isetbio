@@ -142,8 +142,13 @@ if ~quiet
             thisFig = ieNewGraphWin([],[],'Visible','off');
         case {'hlineabsorptionslms', 'vlineabsorptionslms'}
             thisFig = ieNewGraphWin([],'tall','Visible','off');
-        case {'timeseriescurrent'}
         case {'timeseriesabsorptions'}
+            thisFig = ieNewGraphWin([],[],'Visible','off');
+        case {'hlinecurrent', 'vlinecurrent'}
+            thisFig = ieNewGraphWin([],[],'Visible','off');
+        case {'hlinecurrentlms', 'vlinecurrentlms'}
+            thisFig = ieNewGraphWin([],'tall','Visible','off');
+        case {'timeseriescurrent'}
             thisFig = ieNewGraphWin([],[],'Visible','off');
         otherwise
             %
@@ -223,62 +228,27 @@ switch plotType
     case {'hlineabsorptions', 'vlineabsorptions'}
         % Data are stored in the temporary potting window.
         data = mean(obj.absorptions, 3);
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
-        if isempty(p.Results.xy)
-            axis(app.axes2);
-            pt = iePointSelect(obj); 
-            x = pt(1); y = pt(2);
-            switch plotType(1)
-                case 'h'
-                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
-                case 'v'
-                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
-            end
-        else
-            x = p.Results.xy(1);
-            y = p.Results.xy(2);
-        end
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
-        
         set(thisFig,'Visible','on')
         yStr = 'Absorptions per frame';
         if isequal(plotType(1), 'v')
             plot(data(:, x), 'k-', 'LineWidth', 2);
             uData.y = data(:, x);
             uData.x = 1:length(uData.y);
-            grid on;
-            xlabel('Vertical position (cones)');
-            ylabel(yStr);
-            set(gca, 'userdata', data(:, x));
+            grid on; xlabel('Vertical position (cones)'); ylabel(yStr);
         else
             plot(data(y, :), 'k-', 'LineWidth', 2);
             uData.y = data(y, :);
             uData.x = 1:length(uData.y);
-            grid on;
-            xlabel('Horizontal position (cones)');
-            ylabel(yStr);
+            grid on; xlabel('Horizontal position (cones)'); ylabel(yStr);
         end
+        set(gca, 'userdata', uData);
 
     case {'hlineabsorptionslms', 'vlineabsorptionslms'}
         % Does not work correctly when in the cone mosaic viewing mode.
         data = mean(obj.absorptions, 3);
-
-        if isempty(p.Results.xy)
-            axis(app.axes2);
-            pt = iePointSelect(obj); x = pt(1); y = pt(2);
-            switch plotType(1)
-                case 'h'
-                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
-                case 'v'
-                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
-            end
-        else
-            x = p.Results.xy(1);
-            y = p.Results.xy(2);
-        end
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
         
         set(thisFig,'Visible','on')
         names = 'LMS';
@@ -310,30 +280,16 @@ switch plotType
                 set(gca, 'xlim', [1 size(data, 2)]);
             end
         end
+        set(gca, 'userdata', uData);
 
     case 'timeseriesabsorptions'
         % Context menu plot absorption time series.
         data = obj.absorptions;
-        mx = max(data(:));
-        mn = min(data(:));
-
-        if isempty(p.Results.xy)
-            axis(app.axes2);
-            pt = iePointSelect(obj); x = pt(1); y = pt(2);
-            switch plotType(1)
-                case 'h'
-                    ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
-                case 'v'
-                    ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
-            end
-        else
-            x = p.Results.xy(1);
-            y = p.Results.xy(2);
-        end
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
+        mx = max(data(:)); mn = min(data(:));
         
-        figure(thisFig); thisFig.Visible ='on';
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
+
+        set(thisFig,'Visible','on')
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
         yStr = 'Absorptions per frame';
         data = squeeze(data(y, x, :));
@@ -343,6 +299,7 @@ switch plotType
         uData.pos = [x, y]; 
         grid on; xlabel('Time (ms)'); ylabel(yStr);
         set(gca, 'ylim', [mn mx]);
+        set(gca, 'userdata', uData);
 
     case 'meancurrent'
         if isempty(obj.current)
@@ -374,58 +331,50 @@ switch plotType
         title('Photocurrent (pA)');
 
         uData.data = data;
+        set(gca, 'userdata', uData);
 
     case {'hlinecurrent', 'vlinecurrent'}
         data = mean(obj.current, 3);
+        
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
+        %{
         % The plots below are with respect to a point.
         % Get the point
         [x, y] = ginput(1); % Rounded and clipped to the data
         x = ieClip(round(x), 1, size(data, 2));
         y = ieClip(round(y), 1, size(data, 1));
-
+        %}
+        
         % Draw a circle around the selected point.
-        viscircles([x, y], 0.7);
-        vcNewGraphWin;
-        yStr = 'Absorptions per frame';
+        set(thisFig,'Visible','on')
+        yStr = 'Photocurrent per frame (pA)';
         if isequal(plotType(1), 'v')
-            plot(data(:, x), 'LineWidth', 2);
-            grid on;
-            xlabel('Vertical position (cones)');
-            ylabel(yStr);
+            plot(data(:, x), 'LineWidth', 2); grid on;
+            xlabel('Vertical position (cones)'); ylabel(yStr);
             uData.y = data(:, x); uData.x = 1:length(uData.y); 
         else
-            plot(data(y, :), 'LineWidth', 2);
-            grid on;
+            plot(data(y, :), 'LineWidth', 2); grid on;
             xlabel('Horizontal position (cones)');
             ylabel(yStr);
-            uData.y = data(y, :);
-            uData.x = 1:length(uData.y);
+            uData.y = data(y, :); uData.x = 1:length(uData.y);
         end
+        set(gca, 'userdata', uData);
 
     case {'hlinecurrentlms', 'vlinecurrentlms'}
         data = mean(obj.current, 3);
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
-        % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
-        viscircles([x, y], 0.7);
-
-        vcNewGraphWin([], 'tall');
-        names = 'LMS';
-        c = {'ro-', 'go-', 'bo-'};
+        set(thisFig,'Visible','on')
+        names = 'LMS'; c = {'ro-', 'go-', 'bo-'};
         yStr = 'Photocurrent (pA)';
         if isequal(plotType(1), 'v')
-            c = {'ro-', 'go-', 'bo-'};
             for ii = 2:4 % L, M, S
                 subplot(3, 1, ii - 1);
                 pos = find(obj.pattern(:, x) == ii);
                 plot(pos, data(pos, x), c{ii-1}, 'LineWidth', 2);
                 grid on;
-                uData.pos{ii - 1} = pos;
-                uData.data{ii - 1} = data(pos, x);
+                uData.pos{ii - 1} = pos; uData.data{ii - 1} = data(pos, x);
                 xlabel('Vertical Position (cones');
                 ylabel([names(ii-1) ' ' yStr]);
                 set(gca, 'xlim', [1 size(data, 1)]);
@@ -436,35 +385,29 @@ switch plotType
                 pos = find(obj.pattern(y, :) == ii);
                 plot(pos, data(y, pos), c{ii - 1}, 'LineWidth', 2);
                 grid on;
-                uData.pos{ii - 1} = pos;
-                uData.data{ii - 1} = data(y, pos);
+                uData.pos{ii - 1} = pos; uData.data{ii - 1} = data(y, pos);
                 xlabel('Horizontal Position (cones');
                 ylabel([names(ii - 1) ' ' yStr]);
                 set(gca, 'xlim', [1 size(data, 2)]);
             end
         end
+        set(gca, 'userdata', uData);
+
     case 'timeseriescurrent'
         data = obj.current;
-        mx = max(data(:));
-        mn = min(data(:));
+        [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
-        [x, y] = ginput(1); % Rounded and clipped to the data
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
-        viscircles([x, y], 0.7);
-
+        set(thisFig,'Visible','on')
         t = (1:size(data, 3)) * obj.integrationTime * 1e3;
-
-        vcNewGraphWin;
-        yStr = 'Absorptions per frame';
         plot(t, squeeze(data(y, x, :)), 'LineWidth', 2);
-        uData.x = t;
-        uData.y = squeeze(data(y, x, :));
-        uData.pos = [x, y];
-        grid on;
-        xlabel('Time (ms)');
-        ylabel(yStr);
-        set(gca, 'ylim', [mn mx]);
+
+        uData.x = t; uData.y = squeeze(data(y, x, :)); uData.pos = [x, y];
+        
+        yStr = 'Photocurrent per frame (pA)';
+        grid on; xlabel('Time (ms)'); ylabel(yStr);
+        
+        mx = max(data(:)); mn = min(data(:)); set(gca, 'ylim', [mn mx]);
+        set(gca, 'userdata', uData);
 
     case 'impulseresponse'
         % Current impulse response at cone mosaic temporal sampling rate
@@ -496,6 +439,7 @@ switch plotType
         interpFilters = interp1(osTimeAxis(:), lmsFilters, ...
             coneTimeAxis(:), 'linear', 0);
         
+        set(thisFig,'Visible','on');
         plot(coneTimeAxis, interpFilters(:, 1), 'r-o', ...
             coneTimeAxis, interpFilters(:, 2), 'g-o', ...
             coneTimeAxis, interpFilters(:, 3), 'b-o');
@@ -628,6 +572,28 @@ end
 
 % Put back the modified user data
 if exist('uData','var'), set(gca, 'userdata', uData); end
+
+end
+
+%% Helper function
+function [x,y] = plotSelectPoint(obj,xy,app,data,plotType)
+% Return the xy values of a point, potentially selected graphically
+
+if isempty(xy)
+    axis(app.axes2);
+    pt = iePointSelect(obj); x = pt(1); y = pt(2);
+    switch plotType(1)
+        case 'h'
+            ieShape('line', 'lineX', [1 size(data,2)], 'lineY', [y, y], 'color', 'c');
+        case 'v'
+            ieShape('line', 'lineX', [x, x], 'lineY', [1 size(data,1)], 'color', 'c');
+    end
+else
+    x = xy(1);
+    y = xy(2);
+end
+x = ieClip(round(x), 1, size(data, 2));
+y = ieClip(round(y), 1, size(data, 1));
 
 end
 
