@@ -20,7 +20,7 @@ function renderRGCanalysesFigures(patchDogParams, modelFitted, spatialFrequencie
         
     end
     
-    labelCells = true;
+    labelCells = ~true;
     %   Visualize the temporal response of each RGC at the RGC's location
     if (visualizeRGCTemporalResponsesAtRGCPositions)
         for sfIndex = 1:numel(spatialFrequenciesCPD)

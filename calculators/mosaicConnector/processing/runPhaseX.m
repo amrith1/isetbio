@@ -10,7 +10,7 @@ function runPhaseX(runParams)
     % mRGC mosaic: whether to re-generate it
     recomputeRGCmosaic = true;
     % mRGC mosaic: whether to visualize the synthesized RF params
-    visualizeSynthesizedParams = true;
+    visualizeSynthesizedParams = ~true;
     
     % Compute cone mosaic responses
     recomputeConeMosaicResponses = ~true;
@@ -77,13 +77,13 @@ function runPhaseX(runParams)
     
     % Visualization options
     visualizeAllTuningCurves = ~true;
-    visualizeResponseComponents = true;
+    visualizeResponseComponents = ~true;
     visualizeRetinalContrasts = ~true;
     coVisualizeRetinalStimulusWithMosaics = ~true;
     visualizeMeanConeMosaicResponseAsAMovie = false;
     visualizeRGCTemporalResponsesAtRGCPositions = ~true;
     visualizeTuningAtRGCPositions = true;
-    visualizePatchStatistics = true;
+    visualizePatchStatistics = ~true;
         
     if (recomputeConeMosaicResponses)
         switch stimulusType

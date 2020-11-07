@@ -19,30 +19,32 @@ function visualizeSpatialFrequencyTuning(axesHandle, spatialFrequenciesCPD, theS
     end
     
     % Plot the error of the mean vertical bars
-    for k = 1:numel(spatialFrequenciesCPD)
-        line(axesHandle, spatialFrequenciesCPD(k)*[1 1], theSFtuning(k)+theSFtuningSE(k)*[-1 1], 'LineWidth', 2.0, 'Color', [1 .5 0.5]); hold on;
-    end
+    %for k = 1:numel(spatialFrequenciesCPD)
+    %    line(axesHandle, spatialFrequenciesCPD(k)*[1 1], theSFtuning(k)+theSFtuningSE(k)*[-1 1], 'LineWidth', 2.0, 'Color', [1 .5 0.5]); hold on;
+    %end
             
     % Plot the model fit
-    line(axesHandle, spatialFrequenciesCPDHR, responseTuningHR, 'Color', [1 0 0]);
-    
+    line(axesHandle, spatialFrequenciesCPDHR, responseTuningHR, 'Color', [1 0.3 0.5]*0.6, 'LineWidth', 8.0);
+    hold(axesHandle, 'on');
     % Plot the mean points
-    scatter(axesHandle, spatialFrequenciesCPD, theSFtuning, 'MarkerEdgeColor', [1 0 0], 'MarkerFaceColor', [1 0.5 0.5]);
+    scatter(axesHandle, spatialFrequenciesCPD, theSFtuning, 40^2, ...
+        'MarkerEdgeColor', [1 0.3 0.5]*0.6, 'MarkerFaceAlpha', 1, 'MarkerFaceColor', [1 0.3 0.5], 'LineWidth', 6.0);
     
-    if (~isempty(synthParams)) && (strcmp(modelFitted, 'DifferenceOfGaussians'))
-        responseGain = max(theSFtuning);
-        visualizeSFTuningOfUnderlyingModel(axesHandle, targetRGC, synthParams, responseGain, spatialFrequenciesCPDHR, max(responseTuningHR));
-    end
+   % if (~isempty(synthParams)) && (strcmp(modelFitted, 'DifferenceOfGaussians'))
+   %     responseGain = max(theSFtuning);
+   %     visualizeSFTuningOfUnderlyingModel(axesHandle, targetRGC, synthParams, responseGain, spatialFrequenciesCPDHR, max(responseTuningHR));
+   % end
             
     % Set the axes
     axis(axesHandle, 'square');
     set(axesHandle, 'XScale', 'log', 'XLim', [0.06 105], 'XTick', [0.03 0.1 0.3 1 3 10 30 100], ...
         'YTick', spikeRateTicks, 'YScale', 'linear','YLim', [0 maxSpikeRateModulation]);
-    xlabel(axesHandle,'spatial frequency (c/deg)');
-    ylabel(axesHandle, 'response modulation');
+    set(axesHandle, 'XColor', [0.35 0.35 0.35], 'YColor', [0.35 0.35 0.35], 'LineWidth', 2.0);
+    xlabel(axesHandle,'spatial frequency (c/deg)', 'Color', [0 0 0]);
+    ylabel(axesHandle, 'response  magnitude', 'Color', [0 0 0]);
             
-    title(axesHandle, sprintf('RGC #%d, C_{LMS} = <%0.1f, %0.1f, %0.1f>', targetRGC, LMScontrast(1), LMScontrast(2), LMScontrast(3)), ...
-        'FontName', 'Source Code Pro', 'FontSize', 24);
+    %title(axesHandle, sprintf('RGC #%d, C_{LMS} = <%0.1f, %0.1f, %0.1f>', targetRGC, LMScontrast(1), LMScontrast(2), LMScontrast(3)), ...
+    %    'FontName', 'Source Code Pro', 'FontSize', 24);
     
     % Show the params of the fitted model
     if (~isempty(modelParams))
