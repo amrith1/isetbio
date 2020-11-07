@@ -226,7 +226,6 @@ switch plotType
         ieMovie(obj.absorptions, varargin{:});
 
     case {'hlineabsorptions', 'vlineabsorptions'}
-        % Data are stored in the temporary potting window.
         data = mean(obj.absorptions, 3);
         [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
@@ -246,7 +245,6 @@ switch plotType
         set(gca, 'userdata', uData);
 
     case {'hlineabsorptionslms', 'vlineabsorptionslms'}
-        % Does not work correctly when in the cone mosaic viewing mode.
         data = mean(obj.absorptions, 3);
         [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
         
@@ -283,7 +281,6 @@ switch plotType
         set(gca, 'userdata', uData);
 
     case 'timeseriesabsorptions'
-        % Context menu plot absorption time series.
         data = obj.absorptions;
         mx = max(data(:)); mn = min(data(:));
         
@@ -338,15 +335,6 @@ switch plotType
         
         [x,y] = plotSelectPoint(obj,p.Results.xy,app,data,plotType);
 
-        %{
-        % The plots below are with respect to a point.
-        % Get the point
-        [x, y] = ginput(1); % Rounded and clipped to the data
-        x = ieClip(round(x), 1, size(data, 2));
-        y = ieClip(round(y), 1, size(data, 1));
-        %}
-        
-        % Draw a circle around the selected point.
         set(thisFig,'Visible','on')
         yStr = 'Photocurrent per frame (pA)';
         if isequal(plotType(1), 'v')
