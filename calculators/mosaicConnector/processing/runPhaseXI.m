@@ -8,8 +8,8 @@ function runPhaseXI(runParams)
         case 'drifting gratings'
             visualizedSet = 'data and fit';
             plotChromaticTuning(runParams, figExportsDir,visualizedSet );
-            visualizedSet = 'fit and isoresponse';
-            plotChromaticTuning(runParams, figExportsDir, visualizedSet );
+            %visualizedSet = 'fit and isoresponse';
+            %plotChromaticTuning(runParams, figExportsDir, visualizedSet );
     end
 end
 
