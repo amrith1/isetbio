@@ -173,26 +173,26 @@ end
 % variable that is stored in the temporary plotting window.
 switch ieParamFormat(plotType)
     case 'conemosaic'
-        axisData = get(gca,'UserData');  % Main axis in the window
+        uData = get(gca,'UserData');  % Main axis in the window
 
-        if isfield(axisData,'mosaicImage') && ~isempty(axisData.mosaicImage)
-            imagesc(axisData.mosaicImage)
+        if isfield(uData,'mosaicImage') && ~isempty(uData.mosaicImage)
+            imagesc(uData.mosaicImage)
             axis off; axis image;
         else
             locs    = obj.coneLocs;
             pattern = obj.pattern(:);
             
             % The locations are converted to microns from meters, I think.
-            [axisData.support, axisData.spread, axisData.delta, axisData.mosaicImage] = ...
+            [uData.support, uData.spread, uData.delta, uData.mosaicImage] = ...
                 conePlot(locs * 1e6, pattern);
-            imagesc(axisData.mosaicImage);
+            imagesc(uData.mosaicImage);
             axis off; axis image;
         end
         
-        set(gca,'UserData',axisData);  % Put the modified values back
+        set(gca,'UserData',uData);  % Put the modified values back
 
     case 'meanabsorptions'
-        axisData = get(gca,'UserData'); % Main axis in window
+        uData = get(gca,'UserData'); % Main axis in window
 
         % Image of mean absorptions per integration period
         if isempty(obj.absorptions)
@@ -201,10 +201,10 @@ switch ieParamFormat(plotType)
         end
 
         % Show the data, with the gamma from the window.
-        axisData.data = mean(obj.absorptions, 3);
+        uData.data = mean(obj.absorptions, 3);
         gdata = guidata(obj.hdl);
         gam = str2double(get(gdata.editGam, 'string'));
-        imagesc((axisData.data) .^ gam);
+        imagesc((uData.data) .^ gam);
         axis off;
 
         % Preserve the tick labels in real photons
@@ -218,7 +218,7 @@ switch ieParamFormat(plotType)
         axis image;
         title('Absorptions per integration time');
         
-        set(gca,'UserData',axisData);  % Put it back
+        set(gca,'UserData',uData);  % Put it back
 
     case 'movieabsorptions'
         % Movie in gray scale
