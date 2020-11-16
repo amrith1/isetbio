@@ -175,6 +175,12 @@ classdef coneMosaic < hiddenHandle
         %noiseFlag - String. Add noise to isomerizations?
         noiseFlag;
 
+        % cone mosaic random number generator.  To create the same spatial
+        % pattern twice, set the size, spatial density and this seed the
+        % same.  Otherwise a new pattern is randomly generated at each
+        % call.
+        mosaicSeed;
+        
         %apertureBlur - Boolean. Blur by cone ap. when computing iso's?
         %   The boolean indicating whether or not to blur by cone aperture
         %   when computing the isomerizations?
@@ -269,6 +275,7 @@ classdef coneMosaic < hiddenHandle
 
         %spatialDensity - Spatial density of the KLMS cones
         spatialDensity;
+        
     end
 
     properties (Access=private)
@@ -326,6 +333,11 @@ classdef coneMosaic < hiddenHandle
             %    * TODO:  Use ieParamFormat to simplify naming and allow
             %    spacing of the input arguments.
             
+            %{
+              cm = coneMosaic;  cm.window;
+              
+            %}
+            
             varargin = ieParamFormat(varargin);
             
             p = inputParser;
@@ -352,6 +364,7 @@ classdef coneMosaic < hiddenHandle
             p.addParameter('apertureblur', false, @islogical);
             p.addParameter('noiseflag', 'random', ...
                 @(x)(ismember(lower(x), coneMosaic.validNoiseFlags)));
+            p.addParameter('mosaicseed',[],@isnumeric);
             p.addParameter('useparfor', false, @islogical);
             p.parse(varargin{:});
 
@@ -359,16 +372,20 @@ classdef coneMosaic < hiddenHandle
             obj.name    = p.Results.name;
             obj.pigment = p.Results.pigment;
             obj.macular = p.Results.macular;
+            obj.wave    = p.Results.wave;
 
             obj.center   = p.Results.center(:)';
             obj.whichEye = p.Results.whicheye;
-            obj.wave     = p.Results.wave;
             obj.spatialDensity_   = p.Results.spatialdensity(:);
+            
             obj.integrationTime   = p.Results.integrationtime;
             obj.micronsPerDegree  = p.Results.micronsperdegree;
             obj.coneDarkNoiseRate = [0 0 0];
-            obj.noiseFlag   = p.Results.noiseflag;
             obj.emPositions = p.Results.empositions;
+
+            obj.noiseFlag   = p.Results.noiseflag;
+            obj.mosaicSeed  = p.Results.mosaicseed;
+
             obj.useParfor   = p.Results.useparfor;
             
             % Construct outersgement if not passed.
@@ -420,7 +437,7 @@ classdef coneMosaic < hiddenHandle
             % generate human cone mosaic pattern if not specified
             if isempty(p.Results.pattern)
                 [~, obj.pattern] = humanConeMosaic(p.Results.size, ...
-                    obj.spatialDensity_, obj.patternSampleSize(1));
+                    obj.spatialDensity_, obj.patternSampleSize(1), obj.mosaicSeed);
             else
                 obj.pattern = p.Results.pattern;
             end

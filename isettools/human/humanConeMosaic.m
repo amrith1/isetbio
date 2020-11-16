@@ -74,6 +74,20 @@ function [xy, coneType, densities, rSeed] = ...
     [xy, coneType, densities] = humanConeMosaic(sz, densities);
     conePlot(xy, coneType(:))
 %}
+%{
+   % Repeatedly create the same mosaic
+    sz = [5 5];
+    densities = [1 1 1];
+    umWidth = 1.5;
+    rSeed = 100;
+    [xy, coneType, densities] = humanConeMosaic(sz, densities,umWidth,rSeed);
+    conePlot(xy, coneType(:))
+    [xy, coneType, densities] = humanConeMosaic(sz, densities,umWidth,rSeed);
+    conePlot(xy, coneType(:))
+    [xy, coneType, densities] = humanConeMosaic(sz, densities,umWidth,rSeed+1);
+    conePlot(xy, coneType(:))
+
+%}
 
 if notDefined('sz'), error('Array size must be defined'); end
 % densities contain the [Empty, L, M, S] cone ratios
