@@ -93,7 +93,7 @@ if notDefined('sz'), error('Array size must be defined'); end
 % densities contain the [Empty, L, M, S] cone ratios
 if notDefined('densities'), densities = [0.1 0.55 0.25 0.1]; end
 if notDefined('umConeWidth'), umConeWidth = 2; end
-if notDefined('rSeed'), rSeed = rng; else, rng(rSeed); end
+if notDefined('rSeed'), rSeed = rng; else, rng(rSeed,'twister'); end
 
 nTypes = length(densities);
 
