@@ -10,8 +10,13 @@ function p = configure(fovDegs, neuronType, whichEye)
     p.latticeGalleryDir = sprintf('%s/%s/%s', isetbioRootPath, 'isettools/ganglioncells/data/lattices');
 
     % Patch filename (history of positions)
-    p.patchSaveFileName = sprintf('%s_%s_%1.0fdeg_mosaic_progress', ...
-        strrep(whichEye, ' ', '_'), strrep(neuronType, ' ', '_'), fovDegs);
+    if (fovDegs >= 10)
+        p.patchSaveFileName = sprintf('%s_%s_%1.0fdeg_mosaic_progress', ...
+            strrep(whichEye, ' ', '_'), strrep(neuronType, ' ', '_'), fovDegs);
+    else
+        p.patchSaveFileName = sprintf('%s_%s_%1.2fdeg_mosaic_progress', ...
+            strrep(whichEye, ' ', '_'), strrep(neuronType, ' ', '_'), fovDegs);
+    end
     
     % Patch filename (final positions only)
     p.patchFinalPositionsSaveFileName = strrep(p.patchSaveFileName, '_progress', '');
@@ -35,7 +40,7 @@ function p = configure(fovDegs, neuronType, whichEye)
     % p.queryUserIntervalMinutes = 60*12;
     
     % Tolerance for moving point back to elliptical domain
-    p.lambdaMinMicrons = 2;
+    p.lambdaMinMicrons = 2.15; % This will give peak density of 250,000 cones/mm2
     p.borderTolerance = 0.001 * p.lambdaMinMicrons;
     
     % Terminate loop if rfs move less than this positional tolerance 
@@ -57,7 +62,7 @@ function p = configure(fovDegs, neuronType, whichEye)
     p.rfSpacingFastFunction = @rfSpacingFromTable;
     
     % Samples for the logarithmically sampled eccentricity lookup table
-    p.eccentricityLookUpTableSamplesNum = 48;
+    p.eccentricityLookUpTableSamplesNum = 64; % 48; 96 %48*2;
     
     % Function handle for computing exact rf spacing at queried positions
     switch (neuronType)
@@ -66,20 +71,21 @@ function p = configure(fovDegs, neuronType, whichEye)
         case 'midget ganglion cells'
             p.rfSpacingExactFunction = @midgetRGCSpacingFunction;
     end
+    
 end
 
 
-function [rfSpacingMicrons, eccentricitiesMicrons] = midgetRGCSpacingFunction(rfPosMicrons, whichEye)
+function [rfSpacingMicrons, eccentricitiesMicrons] = midgetRGCSpacingFunction(rfPosMicrons, whichEye, useParfor)
     [~, rfSpacingMMs] = RGCmodels.Watson.compute.rfSpacingAtRetinalPositions(...
-        whichEye, rfPosMicrons, 'midget ganglion cells');
+        whichEye, rfPosMicrons, 'midget ganglion cells', useParfor);
     
     rfSpacingMicrons = 1e3 * rfSpacingMMs(:); 
     eccentricitiesMicrons = sqrt(sum(rfPosMicrons .^ 2, 2));
 end
 
-function [rfSpacingMicrons, eccentricitiesMicrons] = coneSpacingFunction(rfPosMicrons, whichEye)
+function [rfSpacingMicrons, eccentricitiesMicrons] = coneSpacingFunction(rfPosMicrons, whichEye, useParfor)
     [~, rfSpacingMMs] = RGCmodels.Watson.compute.rfSpacingAtRetinalPositions(...
-        whichEye, rfPosMicrons, 'cones');
+        whichEye, rfPosMicrons, 'cones', useParfor);
     
     rfSpacingMicrons = 1e3 * rfSpacingMMs(:); 
     eccentricitiesMicrons = sqrt(sum(rfPosMicrons .^ 2, 2));

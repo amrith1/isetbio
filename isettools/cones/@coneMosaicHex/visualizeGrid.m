@@ -84,6 +84,7 @@ p.addParameter('tickInc', [], @isnumeric);
 p.addParameter('noXaxisLabel', false, @islogical);
 p.addParameter('noYaxisLabel', false, @islogical);
 p.addParameter('scaleBarLengthMicrons', [], @(x)(isnumeric(x)));
+p.addParameter('plotTitle', '', @ischar);
 p.parse(varargin{:});
 
 showCorrespondingRectangularMosaicInstead = ...
@@ -112,6 +113,7 @@ if (p.Results.overlayContourLabels)
 else
     overlayContourLabels = 'off';
 end
+plotTitle = p.Results.plotTitle;
 
 %% Set up cone coordinates and outline
 sampledHexMosaicXaxis = obj.patternSupport(1, :, 1) + obj.center(1);
@@ -249,7 +251,7 @@ if (~showCorrespondingRectangularMosaicInstead)
         edgeColor = [0.4 0.4 0.4];
         faceColor = 'none';
         coneMosaicHex.renderPatchArray(axesHandle, pixelOutline, ...
-            sampledHexMosaicXaxis(iCols), sampledHexMosaicYaxis(end-iRows+1), ...
+            sampledHexMosaicXaxis(iCols),  sampledHexMosaicYaxis(end-iRows+1), ...
             edgeColor, faceColor, lineStyle, lineWidth);
     end
     
@@ -262,7 +264,7 @@ if (~showCorrespondingRectangularMosaicInstead)
 
     [iRows, iCols] = ind2sub(size(obj.pattern), idx);
     coneXcoords = sampledHexMosaicXaxis(iCols);
-    coneYcoords = sampledHexMosaicYaxis(end-iRows+1);
+    coneYcoords =  sampledHexMosaicYaxis(end-iRows+1);
     
     edgeColor = 'none'; % [1 0 0];
     if (labelConeTypes)
@@ -313,7 +315,7 @@ if (~showCorrespondingRectangularMosaicInstead)
     end
     [iRows, iCols] = ind2sub(size(obj.pattern), idx);
     coneXcoords = sampledHexMosaicXaxis(iCols);
-    coneYcoords = sampledHexMosaicYaxis(end-iRows+1);
+    coneYcoords =  sampledHexMosaicYaxis(end-iRows+1);
     
     edgeColor = 'none';  % = [0 0.7 0];
     if (labelConeTypes)
@@ -367,7 +369,7 @@ if (~showCorrespondingRectangularMosaicInstead)
     end
     [iRows, iCols] = ind2sub(size(obj.pattern), idx);
     coneXcoords = sampledHexMosaicXaxis(iCols);
-    coneYcoords = sampledHexMosaicYaxis(end-iRows+1);
+    coneYcoords =  sampledHexMosaicYaxis(end-iRows+1);
     
     edgeColor = 'none';  % = [0 0 1];
     if (labelConeTypes)
@@ -638,5 +640,8 @@ end
 box(axesHandle, 'on'); grid(axesHandle, 'off');
 set(axesHandle, 'FontSize', 18, 'LineWidth', 1.0);
 
-    
+if (~isempty(plotTitle))
+    title(axesHandle, plotTitle);
+end
+
 end

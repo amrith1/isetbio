@@ -1,4 +1,4 @@
-function renderActivationMap(obj, axesHandle, activation, varargin)
+function activationMetaData = renderActivationMap(obj, axesHandle, activation, varargin)
 % Render (in the passed axesHandle) an activation map for the hex mosaic
 %
 % Syntax:
@@ -136,12 +136,20 @@ function renderActivationMap(obj, axesHandle, activation, varargin)
         yRange = yRange * 1e-6;
     end
 
+    idx = find(obj.pattern == 2);
+    activationMetaData.lConeActivations = activation(idx);
+    
+    idx = find(obj.pattern == 3);
+    activationMetaData.mConeActivations = activation(idx);
+    
+    idx = find(obj.pattern == 4);
+    activationMetaData.sConeActivations = activation(idx);
     
     cMapLevels = size(colorMap, 1);
     idx = find(obj.pattern > 1);
     [iRows, iCols] = ind2sub(size(obj.pattern), idx);  
     coneXcoords = sampledHexMosaicXaxis(iCols);
-    coneYcoords = sampledHexMosaicYaxis(iRows);
+    coneYcoords = sampledHexMosaicYaxis(end-iRows+1);
     activationsNlevels = round((activation(idx) - activationRange(1)) / ...
         (activationRange(2) - activationRange(1)) * cMapLevels);
     faceColorsNormalizedValues = activationsNlevels / cMapLevels;
