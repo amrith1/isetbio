@@ -147,7 +147,7 @@ for i = 1:length(train_ind)
     %oiWindow(oiCones);
     
     % Calculate absorption
-    train_abs(:,:,:,i) = cm.compute(oi);
+    train_abs(:,:,:,i) = cm.compute(oiCones);
     
     % Visualize Absorptions
     %params = cm.visualize('params');
@@ -208,7 +208,7 @@ for i = 1:length(test_ind)
     %oiWindow(oiCones);
     
     % Calculate absorption
-    test_abs(:,:,:,i) = cm.compute(oi);
+    test_abs(:,:,:,i) = cm.compute(oiCones);
     
     % Visualize Absorptions
     %params = cm.visualize('params');
