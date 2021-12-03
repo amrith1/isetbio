@@ -53,7 +53,8 @@ filepath = 'sets_dim1717_pos1000_dist25_aligned/';
 %% Mosaic Generation
 
 [cm] = stableCm('cmPos',eccDeg,'cmDim',cmDim,'integrationTime',10/1000);
-save((append(filepath,'cm.mat')),'cm');
+cmds = arrayDatastore(cm,"OutputType","same");
+save(append(filepath,'cm.mat'),'cmds');
 
 %% Load Cropped Images
 
