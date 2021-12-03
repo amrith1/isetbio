@@ -39,21 +39,22 @@ close all
 %% Set Sweep Parameters and UPDATE PATH
 
 % Parameters for Dispaly
-trainSize = 2;
+trainSize = 3045;
 dist = 0.25;
 
 % Parameters for Cone Mosaic
-eccDeg = [-10,0];
+eccDeg = [-15,0];
 cmDim = [1.7,1.7];
 
 % FIX THE PATH TO WHATEVER FOLDER YOU WANT THESE SAVED. DO NOT SAVE OVER
 % OTHER FILES. IT WILL MAKE BRIAN CRY.
-filepath = 'sets_dim1717_pos1000_dist25_aligned/';
+filepath = 'sets_dim1717_pos1500_dist25_aligned/';
 
 %% Mosaic Generation
 
 [cm] = stableCm('cmPos',eccDeg,'cmDim',cmDim,'integrationTime',10/1000);
-save((append(filepath,'cm.mat')),'cm');
+cmds = arrayDatastore(cm,"OutputType","same");
+save(append(filepath,'cm.mat'),'cmds');
 
 %% Load Cropped Images
 
