@@ -10,8 +10,6 @@
 
 function [trainds_img, testds_img, trainds_abs, testds_abs, train_list, test_list] = imgToAbs(trainSize, cm, image_matrix, varargin)
     
-    clear train_img
-    clear test_img
     
     % Parse the Inputs
     p = inputParser;
@@ -96,6 +94,9 @@ function [trainds_img, testds_img, trainds_abs, testds_abs, train_list, test_lis
             test_list = test_ind(end-remainingTest:end);
             stopTest = testSize;
         end
+        
+        clear train_img
+        clear test_img
     
         for i = (k-1)*25+1:stopTrain
         
